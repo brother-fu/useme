@@ -84,7 +84,7 @@ function push(ref) {
       setStatus("已同步");
     } catch (e) {
       console.error(e);
-      setStatus("同步失败");
+      setStatus("同步失败：" + (e.code || e.message));
     }
   }, 600);
 }
@@ -105,18 +105,20 @@ onAuthStateChanged(auth, async (user) => {
     setStatus("已同步");
   } catch (e) {
     console.error(e);
-    setStatus(navigator.onLine ? "同步失败" : "离线，联网后同步");
+    setStatus(navigator.onLine ? "同步失败：" + (e.code || e.message) : "离线，联网后同步");
   }
 
   // 本地有改动 → 推到云端
   window.useme._onChange = () => push(ref);
-  // 其他设备改了 → 拉下来
-  unsub = onSnapshot(ref, (snap) => {
-    if (!snap.exists() || snap.metadata.hasPendingWrites) return;
+  // 其他设备改了 → 拉下来。includeMetadataChanges：服务器确认（缓存→在线）时也要收到事件，才能更新状态
+  unsub = onSnapshot(ref, { includeMetadataChanges: true }, (snap) => {
+    if (!snap.exists()) return;
+    const m = snap.metadata;
+    setStatus(m.hasPendingWrites ? "同步中…" : m.fromCache ? (navigator.onLine ? "连接中…" : "离线（已缓存）") : "已同步");
+    if (m.hasPendingWrites) return;
     const d = snap.data();
     const cur = window.useme.getState();
     const same = stable([d.owned, d.cards, d.cpp]) === stable([cur.owned, cur.cards, cur.cpp]);
     if (!same) window.useme.applyRemote(d);
-    setStatus(snap.metadata.fromCache ? "离线（已缓存）" : "已同步");
-  }, (e) => { console.error(e); setStatus("同步失败"); });
+  }, (e) => { console.error(e); setStatus("同步失败：" + (e.code || e.message)); });
 });
