@@ -1,0 +1,9 @@
+{
+  "_说明": "季度轮换 5% 类别。每季度由发卡行公布后更新这里；categories 用 merchants.json 里的类别 id，merchants 用商家 id。confirmed=false 表示还没核实。",
+  "quarters": {
+    "2026-Q4": {
+      "chase-freedom-flex": { "categories": [], "merchants": [], "confirmed": false },
+      "discover-it": { "categories": [], "merchants": [], "confirmed": false }
+    }
+  }
+}

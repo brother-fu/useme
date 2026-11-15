@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
+  <title>useme · 在哪刷哪张卡</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>useme</h1>
+    <div class="subtitle">在哪刷哪张卡 · <span id="quarter"></span></div>
+  </header>
+  <nav>
+    <button data-tab="recommend" class="on">推荐</button>
+    <button data-tab="wallet">我的卡包</button>
+    <button data-tab="settings">设置</button>
+  </nav>
+  <main>
+    <section id="tab-recommend"></section>
+    <section id="tab-wallet" hidden></section>
+    <section id="tab-settings" hidden></section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

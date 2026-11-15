@@ -1,0 +1,143 @@
+{
+  "updated": "2026-11-14",
+  "disclaimer": "返现规则根据公开资料整理，可能已经过时，请以发卡行官网为准。可以在「我的卡包」里调整。",
+  "issuers": [
+    { "id": "chase", "name": "Chase" },
+    { "id": "amex", "name": "American Express" },
+    { "id": "citi", "name": "Citi" },
+    { "id": "capitalone", "name": "Capital One" },
+    { "id": "discover", "name": "Discover" },
+    { "id": "boa", "name": "Bank of America" },
+    { "id": "wellsfargo", "name": "Wells Fargo" },
+    { "id": "usbank", "name": "U.S. Bank" },
+    { "id": "apple", "name": "Apple" }
+  ],
+  "cards": [
+    {
+      "id": "chase-sapphire-preferred", "issuer": "chase", "name": "Sapphire Preferred",
+      "network": "visa", "currency": "points", "program": "Chase Ultimate Rewards", "annualFee": 95,
+      "base": 1, "rates": { "dining": 3, "streaming": 3, "travel": 2 }
+    },
+    {
+      "id": "chase-sapphire-reserve", "issuer": "chase", "name": "Sapphire Reserve",
+      "network": "visa", "currency": "points", "program": "Chase Ultimate Rewards", "annualFee": 795,
+      "base": 1, "rates": { "dining": 3, "flights": 4, "hotels": 4 }
+    },
+    {
+      "id": "chase-freedom-flex", "issuer": "chase", "name": "Freedom Flex",
+      "network": "mastercard", "currency": "cash", "annualFee": 0,
+      "base": 1, "rates": { "dining": 3, "drugstore": 3 },
+      "rotating": { "rate": 5, "cap": 1500, "needsActivation": true }
+    },
+    {
+      "id": "chase-freedom-unlimited", "issuer": "chase", "name": "Freedom Unlimited",
+      "network": "visa", "currency": "cash", "annualFee": 0,
+      "base": 1.5, "rates": { "dining": 3, "drugstore": 3 }
+    },
+    {
+      "id": "chase-amazon-prime", "issuer": "chase", "name": "Prime Visa (Amazon)",
+      "network": "visa", "currency": "cash", "annualFee": 0,
+      "base": 1, "rates": { "dining": 2, "gas": 2, "transit": 2 },
+      "merchants": { "amazon": 5, "wholefoods": 5 }
+    },
+    {
+      "id": "amex-gold", "issuer": "amex", "name": "Gold Card",
+      "network": "amex", "currency": "points", "program": "Amex Membership Rewards", "annualFee": 325,
+      "base": 1, "rates": { "dining": 4, "grocery": { "r": 4, "cap": 25000, "period": "year" }, "flights": 3 }
+    },
+    {
+      "id": "amex-platinum", "issuer": "amex", "name": "Platinum Card",
+      "network": "amex", "currency": "points", "program": "Amex Membership Rewards", "annualFee": 895,
+      "base": 1, "rates": { "flights": 5 }
+    },
+    {
+      "id": "amex-bcp", "issuer": "amex", "name": "Blue Cash Preferred",
+      "network": "amex", "currency": "cash", "annualFee": 95,
+      "base": 1, "rates": { "grocery": { "r": 6, "cap": 6000, "period": "year" }, "streaming": 6, "gas": 3, "transit": 3 }
+    },
+    {
+      "id": "amex-bce", "issuer": "amex", "name": "Blue Cash Everyday",
+      "network": "amex", "currency": "cash", "annualFee": 0,
+      "base": 1, "rates": { "grocery": { "r": 3, "cap": 6000, "period": "year" }, "gas": { "r": 3, "cap": 6000, "period": "year" }, "online": { "r": 3, "cap": 6000, "period": "year" } }
+    },
+    {
+      "id": "citi-double-cash", "issuer": "citi", "name": "Double Cash",
+      "network": "mastercard", "currency": "cash", "annualFee": 0, "base": 2, "rates": {}
+    },
+    {
+      "id": "citi-custom-cash", "issuer": "citi", "name": "Custom Cash",
+      "network": "mastercard", "currency": "cash", "annualFee": 0, "base": 1, "rates": {},
+      "choices": [
+        { "label": "本账单周期消费最多的类别（自动 5%）", "rate": 5, "cap": 500, "period": "month", "pick": 1,
+          "options": ["dining", "grocery", "gas", "travel", "transit", "streaming", "drugstore", "homeimprovement", "fitness", "entertainment"] }
+      ]
+    },
+    {
+      "id": "citi-costco", "issuer": "citi", "name": "Costco Anywhere Visa",
+      "network": "visa", "currency": "cash", "annualFee": 0,
+      "base": 1, "rates": { "gas": { "r": 4, "cap": 7000, "period": "year" }, "dining": 3, "travel": 3 },
+      "merchants": { "costco": 2, "costco_online": 2, "costco_gas": { "r": 4, "cap": 7000, "period": "year", "capKey": "gas" } },
+      "note": "年费含在 Costco 会员费里"
+    },
+    {
+      "id": "citi-strata-premier", "issuer": "citi", "name": "Strata Premier",
+      "network": "mastercard", "currency": "points", "program": "Citi ThankYou", "annualFee": 95,
+      "base": 1, "rates": { "dining": 3, "grocery": 3, "gas": 3, "travel": 3 }
+    },
+    {
+      "id": "capitalone-savor", "issuer": "capitalone", "name": "Savor",
+      "network": "mastercard", "currency": "cash", "annualFee": 0,
+      "base": 1, "rates": { "dining": 3, "grocery": 3, "streaming": 3, "entertainment": 3 }
+    },
+    {
+      "id": "capitalone-quicksilver", "issuer": "capitalone", "name": "Quicksilver",
+      "network": "mastercard", "currency": "cash", "annualFee": 0, "base": 1.5, "rates": {}
+    },
+    {
+      "id": "capitalone-venture-x", "issuer": "capitalone", "name": "Venture X",
+      "network": "visa", "currency": "points", "program": "Capital One Miles", "annualFee": 395, "base": 2, "rates": {}
+    },
+    {
+      "id": "capitalone-venture", "issuer": "capitalone", "name": "Venture",
+      "network": "visa", "currency": "points", "program": "Capital One Miles", "annualFee": 95, "base": 2, "rates": {}
+    },
+    {
+      "id": "discover-it", "issuer": "discover", "name": "Discover it Cash Back",
+      "network": "discover", "currency": "cash", "annualFee": 0, "base": 1, "rates": {},
+      "rotating": { "rate": 5, "cap": 1500, "needsActivation": true }
+    },
+    {
+      "id": "boa-customized-cash", "issuer": "boa", "name": "Customized Cash Rewards",
+      "network": "visa", "currency": "cash", "annualFee": 0,
+      "base": 1, "rates": { "grocery": 2, "warehouse": 2 },
+      "choices": [
+        { "label": "自选 3% 类别", "rate": 3, "cap": 2500, "period": "quarter", "pick": 1,
+          "options": ["gas", "online", "dining", "travel", "drugstore", "homeimprovement"] }
+      ],
+      "note": "3% 和 2% 合计每季度上限 $2,500"
+    },
+    {
+      "id": "wf-active-cash", "issuer": "wellsfargo", "name": "Active Cash",
+      "network": "visa", "currency": "cash", "annualFee": 0, "base": 2, "rates": {}
+    },
+    {
+      "id": "wf-autograph", "issuer": "wellsfargo", "name": "Autograph",
+      "network": "visa", "currency": "points", "program": "Wells Fargo Rewards", "annualFee": 0,
+      "base": 1, "rates": { "dining": 3, "travel": 3, "gas": 3, "transit": 3, "streaming": 3 }
+    },
+    {
+      "id": "usbank-cash-plus", "issuer": "usbank", "name": "Cash+",
+      "network": "visa", "currency": "cash", "annualFee": 0, "base": 1, "rates": {},
+      "choices": [
+        { "label": "自选两个 5% 类别", "rate": 5, "cap": 2000, "period": "quarter", "pick": 2,
+          "options": ["fastfood", "streaming", "department", "electronics", "fitness", "transit", "entertainment"] },
+        { "label": "自选一个 2% 日常类别", "rate": 2, "pick": 1, "options": ["grocery", "gas", "dining"] }
+      ]
+    },
+    {
+      "id": "apple-card", "issuer": "apple", "name": "Apple Card",
+      "network": "mastercard", "currency": "cash", "annualFee": 0, "base": 2, "rates": {},
+      "note": "按 Apple Pay 支付 2% 计算，实体卡只有 1%"
+    }
+  ]
+}
