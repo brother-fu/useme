@@ -4,7 +4,12 @@
 }
 * { box-sizing: border-box; }
 body { margin: 0; font: 15px/1.5 -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", sans-serif; background: var(--bg); color: var(--text); }
-header { padding: 20px 16px 8px; max-width: 720px; margin: 0 auto; }
+header { padding: 20px 16px 8px; max-width: 720px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+#account { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; font-size: 13px; }
+#account .who { font-weight: 600; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#account .sync { color: var(--muted); }
+.btn.small { margin-top: 0; padding: 6px 10px; font-size: 13px; }
+.btn.link { border: none; background: none; color: var(--accent); padding: 6px 4px; }
 h1 { margin: 0; font-size: 26px; letter-spacing: .5px; }
 .subtitle { color: var(--muted); font-size: 13px; }
 nav { position: sticky; top: 0; z-index: 5; display: flex; gap: 6px; padding: 8px 16px; max-width: 720px; margin: 0 auto; background: var(--bg); }

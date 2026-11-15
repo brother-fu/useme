@@ -9,8 +9,11 @@
 </head>
 <body>
   <header>
-    <h1>useme</h1>
-    <div class="subtitle">在哪刷哪张卡 · <span id="quarter"></span></div>
+    <div>
+      <h1>useme</h1>
+      <div class="subtitle">在哪刷哪张卡 · <span id="quarter"></span></div>
+    </div>
+    <div id="account"></div>
   </header>
   <nav>
     <button data-tab="recommend" class="on">推荐</button>
@@ -23,5 +26,6 @@
     <section id="tab-settings" hidden></section>
   </main>
   <script src="app.js"></script>
+  <script type="module" src="firebase-sync.js"></script>
 </body>
 </html>

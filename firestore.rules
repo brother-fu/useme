@@ -1,0 +1,17 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 每个用户只能读写自己的卡包文档：users/{自己的 uid}
+    match /users/{uid} {
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['owned', 'cards', 'cpp', 'updatedAt'])
+        && request.resource.data.owned is list
+        && request.resource.data.owned.size() <= 200;
+    }
+    // 其他一律拒绝
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

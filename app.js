@@ -17,7 +17,30 @@ function loadState() {
   } catch (_) {}
   return { owned: [], cards: {}, cpp: {} };
 }
-function saveState() { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+function normalizeState(s) {
+  const out = { owned: [], cards: {}, cpp: {}, ...(s || {}) };
+  out.owned = Array.isArray(out.owned) ? [...new Set(out.owned)] : [];
+  if (DATA) out.owned = out.owned.filter((id) => DATA.cardMap[id]);
+  out.cards ||= {}; out.cpp ||= {};
+  delete out.updatedAt;
+  return out;
+}
+function saveState({ silent = false } = {}) {
+  localStorage.setItem(STORE_KEY, JSON.stringify(state));
+  if (!silent) window.useme._onChange?.(state); // 通知云同步模块（firebase-sync.js）
+}
+
+// 给云同步模块用的接口
+window.useme = {
+  getState: () => JSON.parse(JSON.stringify(state)),
+  // 用云端数据替换本地，不再回传云端
+  applyRemote(s) {
+    state = normalizeState(s);
+    saveState({ silent: true });
+    if (DATA) renderAll();
+  },
+  _onChange: null,
+};
 function cardState(id) {
   if (!state.cards[id]) state.cards[id] = { activated: false, quarterCats: {}, picks: {}, spent: {} };
   const c = state.cards[id];
@@ -296,7 +319,7 @@ function renderSettings() {
   const data = el(`
     <section class="group"><h3>数据</h3>
       <p class="sub">卡片规则更新于 ${DATA.updated}。${DATA.disclaimer}</p>
-      <p class="sub">你的卡包只存在这台设备的浏览器里，不会上传，也不包含卡号。</p>
+      <p class="sub">没登录时，卡包只存在这台设备的浏览器里。用 Google 登录后会同步到云端（Firebase），只有你自己能读写，也不包含卡号。</p>
       <div class="row">
         <button class="btn" id="exp">导出我的设置</button>
         <label class="btn">导入设置<input type="file" id="imp" accept="application/json" hidden></label>
@@ -309,10 +332,10 @@ function renderSettings() {
     a.download = "useme-settings.json"; a.click();
   };
   data.querySelector("#imp").onchange = async (e) => {
-    try { const s = JSON.parse(await e.target.files[0].text()); if (!Array.isArray(s.owned)) throw 0; state = { cards: {}, cpp: {}, ...s }; saveState(); alert("已导入"); renderAll(); }
+    try { const s = JSON.parse(await e.target.files[0].text()); if (!Array.isArray(s.owned)) throw 0; state = normalizeState(s); saveState(); alert("已导入"); renderAll(); }
     catch (_) { alert("文件格式不对"); }
   };
-  data.querySelector("#rst").onclick = () => { if (confirm("确定清空卡包和所有设置？")) { state = { owned: [], cards: {}, cpp: {} }; saveState(); renderAll(); } };
+  data.querySelector("#rst").onclick = () => { if (confirm("确定清空卡包和所有设置？登录状态下云端的也会一起清空。")) { state = { owned: [], cards: {}, cpp: {} }; saveState(); renderAll(); } };
   root.append(data);
 }
 
