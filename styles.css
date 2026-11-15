@@ -46,7 +46,7 @@ body {
 /* ---------- Header & Account ---------- */
 header {
   padding: 20px 16px 10px;
-  max-width: 760px;
+  max-width: 920px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
@@ -104,7 +104,7 @@ nav {
   display: flex;
   gap: 8px;
   padding: 10px 16px;
-  max-width: 760px;
+  max-width: 920px;
   margin: 0 auto;
   background: rgba(11, 17, 32, 0.85);
   backdrop-filter: blur(14px);
@@ -139,7 +139,7 @@ nav button.on {
 }
 
 main {
-  max-width: 760px;
+  max-width: 920px;
   margin: 0 auto;
   padding: 12px 16px 72px;
 }
@@ -862,6 +862,685 @@ input[type="number"]:focus {
   max-width: 26px;
 }
 
+/* ---------- Recommend Tab: Search Box, Hero Pop-Out Card & All-Cards Showcase Stage ---------- */
+.search-box-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin: 6px 0 10px;
+}
+
+.search-box-wrap .search-icon {
+  position: absolute;
+  left: 14px;
+  font-size: 16px;
+  pointer-events: none;
+  opacity: 0.78;
+}
+
+.search-box-wrap input[type="search"] {
+  margin: 0;
+  padding: 13px 42px 13px 40px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(56, 189, 248, 0.35);
+  background: rgba(15, 23, 42, 0.9);
+  box-shadow: 0 6px 20px -6px rgba(2, 6, 23, 0.55);
+  font-size: 15.5px;
+}
+
+.search-box-wrap input[type="search"]:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow), 0 8px 24px -6px rgba(14, 165, 233, 0.3);
+}
+
+.search-clear-btn {
+  position: absolute;
+  right: 10px;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(51, 65, 85, 0.75);
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.16s ease;
+}
+
+.search-clear-btn:hover {
+  background: var(--accent);
+  color: #082f49;
+  border-color: var(--accent);
+}
+
+.search-clear-btn[hidden] {
+  display: none !important;
+}
+
+/* Dynamic Pop-Out Hero Card Spotlight (.hero-recommend-pop) */
+.hero-recommend-pop {
+  margin: 16px 0 20px;
+  padding: 18px 20px;
+  border-radius: 20px;
+  background: radial-gradient(circle at 20% 0%, rgba(34, 197, 94, 0.16) 0%, rgba(30, 41, 59, 0.96) 52%, rgba(15, 23, 42, 0.98) 100%);
+  border: 1.5px solid rgba(34, 197, 94, 0.55);
+  box-shadow:
+    0 20px 44px -10px rgba(2, 6, 23, 0.75),
+    0 0 28px -4px rgba(34, 197, 94, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-recommend-pop.is-preview {
+  background: radial-gradient(circle at 20% 0%, rgba(56, 189, 248, 0.18) 0%, rgba(30, 41, 59, 0.96) 52%, rgba(15, 23, 42, 0.98) 100%);
+  border-color: rgba(56, 189, 248, 0.6);
+  box-shadow:
+    0 20px 44px -10px rgba(2, 6, 23, 0.75),
+    0 0 28px -4px rgba(56, 189, 248, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.hero-recommend-pop.pop-animate {
+  animation: cardPopIn 0.42s cubic-bezier(0.2, 1.15, 0.32, 1);
+}
+
+@keyframes cardPopIn {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0) scale(0.95);
+  }
+  65% {
+    opacity: 1;
+    transform: translate3d(0, -3px, 0) scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+.hero-pop-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.hero-target-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 15px;
+}
+
+.hero-live-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: #4ade80;
+  box-shadow: 0 0 10px #4ade80;
+  display: inline-block;
+}
+
+.hero-pop-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.hero-pop-body {
+  display: grid;
+  grid-template-columns: minmax(270px, 340px) 1fr;
+  gap: 22px;
+  align-items: start;
+}
+
+.hero-card-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  perspective: 1100px;
+}
+
+.hero-rank-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.hero-rank-pill.is-best {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: #052e16;
+}
+
+.hero-rank-pill.is-runner {
+  background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+  color: #082f49;
+}
+
+.hero-rank-pill.is-excluded {
+  background: rgba(239, 68, 68, 0.22);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+}
+
+.hero-card-spotlight {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 4px 0 8px;
+}
+
+.hero-card-art-slot {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.hero-card-art-slot .card-face {
+  transform: translateY(-2px) rotateX(3deg) rotateY(-3deg);
+  box-shadow:
+    0 24px 42px -10px rgba(2, 6, 23, 0.8),
+    0 0 24px -2px rgba(56, 189, 248, 0.3),
+    inset 0 1px 2px rgba(255, 255, 255, 0.4);
+}
+
+.hero-card-art-slot .card-face:hover {
+  transform: translateY(-6px) rotateX(0deg) rotateY(0deg) scale(1.015);
+}
+
+.hero-rate-orb {
+  position: absolute;
+  right: -6px;
+  bottom: -4px;
+  z-index: 5;
+  min-width: 96px;
+  padding: 7px 12px;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.94);
+  border: 1.5px solid #4ade80;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55), 0 0 16px rgba(34, 197, 94, 0.32);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  backdrop-filter: blur(8px);
+}
+
+.hero-rate-orb.is-runner {
+  border-color: var(--accent);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55), 0 0 16px rgba(56, 189, 248, 0.3);
+}
+
+.hero-rate-orb.is-excluded {
+  border-color: var(--bad);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);
+}
+
+.hero-rate-orb .orb-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.hero-rate-orb .orb-value {
+  font-size: 23px;
+  font-weight: 900;
+  line-height: 1.15;
+  color: #4ade80;
+  font-variant-numeric: tabular-nums;
+}
+
+.hero-rate-orb.is-runner .orb-value {
+  color: var(--accent);
+}
+
+.hero-rate-orb.is-excluded .orb-value {
+  color: #f87171;
+}
+
+.hero-rate-orb .orb-sub {
+  font-size: 10.5px;
+  color: #cbd5e1;
+}
+
+.hero-card-caption {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  font-size: 13.5px;
+  color: #e2e8f0;
+}
+
+/* "Why choose this card" Panel (.hero-why-panel / .why-choose-box) */
+.hero-why-panel {
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 16px;
+  padding: 15px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.why-panel-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.65);
+  padding-bottom: 8px;
+}
+
+.why-panel-header h3 {
+  margin: 0;
+  font-size: 16.5px;
+  font-weight: 800;
+  color: #f8fafc;
+}
+
+.why-card-subtitle {
+  font-size: 12.5px;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.why-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.why-item {
+  background: rgba(30, 41, 59, 0.65);
+  border: 1px solid rgba(71, 85, 105, 0.45);
+  border-radius: 12px;
+  padding: 10px 13px;
+}
+
+.why-item.primary-reason {
+  border-color: rgba(34, 197, 94, 0.42);
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(30, 41, 59, 0.7) 100%);
+}
+
+.why-item-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #94a3b8;
+  margin-bottom: 4px;
+  letter-spacing: 0.3px;
+}
+
+.why-item-body {
+  font-size: 13.5px;
+  color: #f1f5f9;
+  line-height: 1.5;
+}
+
+.reason-headline {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-bottom: 3px;
+}
+
+.reason-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.reason-badge.good {
+  background: rgba(34, 197, 94, 0.22);
+  color: #86efac;
+  border: 1px solid rgba(34, 197, 94, 0.45);
+}
+
+.reason-badge.neutral {
+  background: rgba(56, 189, 248, 0.18);
+  color: #7dd3fc;
+  border: 1px solid rgba(56, 189, 248, 0.38);
+}
+
+.reason-badge.bad {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.45);
+}
+
+.reason-sub {
+  font-size: 12.5px;
+  color: #cbd5e1;
+}
+
+.diff-pos {
+  color: #4ade80;
+  font-weight: 800;
+}
+
+.diff-neg {
+  color: #fbbf24;
+  font-weight: 800;
+}
+
+.why-item-list {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  font-size: 13px;
+  color: #cbd5e1;
+  line-height: 1.55;
+}
+
+.why-item-list li {
+  margin: 2px 0;
+}
+
+.why-compare-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(71, 85, 105, 0.55);
+}
+
+.compare-bar-label {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.compare-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.compare-pill {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(15, 23, 42, 0.8);
+  color: #cbd5e1;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.compare-pill:hover {
+  border-color: var(--accent);
+  color: #ffffff;
+}
+
+.compare-pill.active {
+  background: var(--accent);
+  color: #082f49;
+  border-color: var(--accent);
+  font-weight: 700;
+}
+
+.compare-pill.is-top.active {
+  background: #22c55e;
+  color: #052e16;
+  border-color: #22c55e;
+}
+
+/* One-Stop All-Cards Showcase Stage (.wallet-stage / .all-cards-grid) */
+.wallet-stage {
+  margin: 18px 0 22px;
+  padding: 16px 18px 20px;
+  border-radius: 20px;
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(51, 65, 85, 0.85);
+  box-shadow: var(--shadow-md);
+}
+
+.wallet-stage-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.wallet-stage-title-wrap h3 {
+  margin: 0;
+  font-size: 16.5px;
+  font-weight: 800;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.stage-count {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.16);
+  color: var(--accent);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+}
+
+.wallet-stage-sub {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.wallet-stage-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.all-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.stage-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.22s ease, box-shadow 0.22s ease, opacity 0.22s ease;
+  cursor: pointer;
+}
+
+.stage-card.is-overview {
+  cursor: default;
+}
+
+.stage-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(56, 189, 248, 0.55);
+  box-shadow: 0 12px 26px -8px rgba(2, 6, 23, 0.65);
+}
+
+.stage-card.is-winner {
+  border-color: #22c55e;
+  background: linear-gradient(155deg, rgba(34, 197, 94, 0.16) 0%, rgba(15, 23, 42, 0.9) 55%);
+  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.45) inset, 0 14px 30px -8px rgba(34, 197, 94, 0.28);
+  transform: translateY(-3px);
+}
+
+.stage-card.is-previewed:not(.is-winner) {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent) inset, 0 12px 28px -8px rgba(56, 189, 248, 0.3);
+}
+
+.stage-card.is-excluded {
+  opacity: 0.52;
+  filter: saturate(0.45);
+}
+
+.stage-card.is-excluded:hover {
+  opacity: 0.78;
+  filter: saturate(0.7);
+}
+
+.stage-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.stage-rank-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  background: rgba(51, 65, 85, 0.75);
+  color: #cbd5e1;
+}
+
+.stage-rank-badge.winner {
+  background: rgba(34, 197, 94, 0.22);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.45);
+  font-weight: 800;
+}
+
+.stage-rank-badge.runner {
+  background: rgba(56, 189, 248, 0.14);
+  color: #7dd3fc;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.stage-rank-badge.excluded {
+  background: rgba(239, 68, 68, 0.18);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.stage-rank-badge.overview {
+  background: rgba(30, 41, 59, 0.9);
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.stage-rate-badge {
+  font-size: 16px;
+  font-weight: 800;
+  color: #f8fafc;
+  font-variant-numeric: tabular-nums;
+}
+
+.stage-rate-badge.winner {
+  color: #4ade80;
+  font-size: 18px;
+}
+
+.stage-rate-badge.excluded {
+  font-size: 12.5px;
+  color: #f87171;
+  font-weight: 600;
+}
+
+.stage-rate-badge.overview {
+  font-size: 12.5px;
+  color: var(--accent);
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.stage-card-art .card-face {
+  max-width: 100%;
+  padding: 12px 14px;
+  border-radius: 13px;
+}
+
+.stage-card-art .card-face .card-face-title,
+.stage-card-art .card-face .card-title {
+  font-size: 13.5px;
+}
+
+.stage-card-art .card-face .card-face-issuer,
+.stage-card-art .card-face .card-issuer {
+  font-size: 9px;
+}
+
+.stage-card-art .card-face .card-chip,
+.stage-card-art .card-face .emv-chip {
+  width: 30px;
+  height: 22px;
+}
+
+.stage-card-art .card-face .card-face-meta,
+.stage-card-art .card-face .card-highlight {
+  font-size: 10px;
+}
+
+.stage-card-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.stage-card-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.stage-card-why {
+  font-size: 12px;
+  color: #94a3b8;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 /* ---------- Recommend Results (#tab-recommend) ---------- */
 .results {
   margin-top: 18px;
@@ -1398,6 +2077,19 @@ input[type="number"]:focus {
 }
 
 /* ---------- Responsive Adjustments ---------- */
+@media (max-width: 720px) {
+  .hero-pop-body {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .hero-rate-orb {
+    right: 6px;
+  }
+  .all-cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+
 @media (max-width: 480px) {
   header {
     padding: 16px 14px 8px;
@@ -1405,9 +2097,22 @@ input[type="number"]:focus {
   main {
     padding: 10px 12px 64px;
   }
+  .hero-recommend-pop {
+    padding: 14px;
+  }
+  .wallet-stage {
+    padding: 13px 12px 16px;
+  }
+  .all-cards-grid {
+    grid-template-columns: 1fr;
+  }
   .card-face:not(.mini) {
     max-width: calc(100% - 28px);
     padding: 14px 16px;
+  }
+  .stage-card-art .card-face:not(.mini),
+  .hero-card-art-slot .card-face:not(.mini) {
+    max-width: 100%;
   }
   .card-face-title,
   .card-title {

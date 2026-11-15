@@ -32,8 +32,44 @@ const OFFICIAL_FALLBACK = {
 let DATA = null; // { cards, issuers, categories, merchants, rotating, catMap, merchantMap, cardMap }
 let state = loadState();
 let selected = null; // { type: 'merchant'|'category', id }
+let manualSelected = null; // 用户点击 chip 明确选择的商家或类别
+let recommendQuery = ""; // #mq 搜索框当前输入内容
+let previewCardId = null; // 用户在下方卡包舞台点击预览/对比的卡片 ID
+let showAllCardsInRecommend = false; // 是否在推荐页强制显示全部收录卡片
+let lastHeroAnimKey = ""; // 控制动态弹出动画仅在目标变化时播放
 let activeStackIdx = {}; // { [issuerId]: number }
 let lastSyncToast = null; // 同步反馈提示信息
+
+// 常见商家中英文/别名搜索映射，支持输入关键字实时匹配
+const MERCHANT_ALIASES = {
+  costco_gas: ["costco gas", "costco加油", "costco 加油", "好市多加油"],
+  costco_online: ["costco.com", "costco online", "costco网购", "costco官网"],
+  costco: ["costco", "好市多", "开市客"],
+  sams: ["sam's", "sams", "sams club", "山姆"],
+  bjs: ["bj's", "bjs"],
+  wholefoods: ["whole foods", "wholefoods", "wf", "猴父子", "全食", "全食超市"],
+  traderjoes: ["trader joe", "traderjoes", "tj", "缺德舅"],
+  safeway: ["safeway", "vons", "albertsons"],
+  kroger: ["kroger", "ralphs", "fred meyer"],
+  h_mart: ["hmart", "h mart", "99 ranch", "99ranch", "大华", "韩亚龙", "亚超"],
+  target: ["target", "塔吉特"],
+  walmart: ["walmart", "沃尔玛"],
+  amazon: ["amazon", "amzn", "亚马逊", "aws"],
+  shell: ["shell", "chevron", "exxon", "mobil", "bp", "arco", "texaco"],
+  starbucks: ["starbucks", "sbux", "星巴克", "咖啡"],
+  mcdonalds: ["mcdonald", "mcdonalds", "mcd", "麦当劳", "金拱门"],
+  restaurant: ["restaurant", "dining", "堂食", "饭店", "下馆子"],
+  doordash: ["doordash", "ubereats", "uber eats", "grubhub", "外卖"],
+  uber: ["uber", "lyft", "打车", "网约车"],
+  netflix: ["netflix", "spotify", "youtube", "disney", "hulu", "apple music", "订阅"],
+  cvs: ["cvs", "walgreens", "rite aid", "药房"],
+  airline: ["airline", "flight", "机票", "航司", "united", "delta", "aa", "american airlines"],
+  hotel: ["hotel", "marriott", "hilton", "hyatt", "ihg", "酒店", "订房"],
+  homedepot: ["home depot", "homedepot", "lowes", "lowe's", "ikea", "家得宝", "建材"],
+  bestbuy: ["best buy", "bestbuy", "百思买", "apple store", "电器"],
+  macys: ["macy", "macys", "nordstrom", "saks", "bloomingdale", "百货"],
+  amc: ["amc", "regal", "cinema", "concert", "电影", "演出"],
+};
 
 // ---------- 周期工具（季度 / 月度 / 年度） ----------
 function currentQuarter(d = new Date()) {
@@ -265,8 +301,9 @@ function officialLinkOf(card) {
 function mountCardArt(card, opts = {}) {
   if (typeof window.renderCardArt === "function") {
     const res = window.renderCardArt(card, opts);
-    if (res instanceof Element) return res;
+    if (typeof Element !== "undefined" && res instanceof Element) return res;
     if (typeof res === "string" && res.trim()) return el(res);
+    if (res && typeof res === "object" && res.tagName) return res;
   }
   // Fallback if card-art.js is still loading
   const cls = ["card-face", opts.mini ? "mini" : "", opts.owned ? "owned is-owned" : "", opts.active ? "active is-active" : ""]
@@ -448,8 +485,8 @@ function evaluate(card, merchant, catId) {
     return { card, excluded: true, reason: `${merchant.name} 不收 ${NET_NAME[card.network]}` };
   }
 
-  const opts = [{ rate: card.base, why: "基础返现" }];
-  const add = (entry, capKey, why) => {
+  const opts = [{ rate: card.base, why: "基础返现", kind: "base", kindLabel: "全类别保底返现" }];
+  const add = (entry, capKey, why, kind = "fixed", kindLabel = "固定类别高返现") => {
     if (entry == null) return;
     const rate = typeof entry === "number" ? entry : entry.r ?? entry.rate;
     const cap = typeof entry === "object" ? entry.cap : null;
@@ -463,20 +500,34 @@ function evaluate(card, merchant, catId) {
         notes.push(`${why}已达${pLabel}上限 ${money(cap)}（${periodResetInfo(period)}）`);
         return;
       }
-      opts.push({ rate, why: `${why}，${pLabel}额度还剩 ${money(left)}` });
+      opts.push({
+        rate,
+        why: `${why}，${pLabel}额度还剩 ${money(left)}`,
+        kind,
+        kindLabel,
+        capTotal: cap,
+        capLeft: left,
+        period,
+      });
     } else {
-      opts.push({ rate, why });
+      opts.push({ rate, why, kind, kindLabel });
     }
   };
 
   // 固定类别
   const r = card.rates || {};
-  if (r[catId] != null) add(r[catId], catId, `${catName(catId)} ${rateOf(r[catId])}x`);
-  else if (parent && r[parent] != null) add(r[parent], parent, `${catName(parent)} ${rateOf(r[parent])}x`);
+  if (r[catId] != null) add(r[catId], catId, `${catName(catId)} ${rateOf(r[catId])}x`, "fixed", "固定类别高返现");
+  else if (parent && r[parent] != null) add(r[parent], parent, `${catName(parent)} ${rateOf(r[parent])}x`, "fixed", "固定类别高返现");
 
   // 指定商家加成
   if (merchant && card.merchants?.[merchant.id] != null) {
-    add(card.merchants[merchant.id], merchant.id, `${merchant.name} 专属 ${rateOf(card.merchants[merchant.id])}x`);
+    add(
+      card.merchants[merchant.id],
+      merchant.id,
+      `${merchant.name} 专属 ${rateOf(card.merchants[merchant.id])}x`,
+      "merchant",
+      "指定商家专属加成"
+    );
   }
 
   // 季度轮换
@@ -486,15 +537,21 @@ function evaluate(card, merchant, catId) {
     const hitMer = merchant && rc.merchants.includes(merchant.id);
     const hit = hitCat || hitMer;
     const activated = isCardActivated(card.id, q);
+    const isOwned = state.owned.includes(card.id);
     if (hit) {
       const matchLabel = hitMer ? merchant.name : catName(catId);
-      if (card.rotating.needsActivation && !activated) {
+      if (card.rotating.needsActivation && isOwned && !activated) {
         notes.push(`⚠️ ${q} 本季 ${card.rotating.rate}% 含「${matchLabel}」，但你还没标记"已激活"`);
       } else {
+        if (card.rotating.needsActivation && !isOwned) {
+          notes.push(`💡 ${q} 本季 ${card.rotating.rate}% 含「${matchLabel}」（持卡需每季激活）`);
+        }
         add(
           { r: card.rotating.rate, cap: card.rotating.cap, period: "quarter" },
           "rotating",
-          `${q} 季度 ${card.rotating.rate}%（${matchLabel}）`
+          `${q} 季度 ${card.rotating.rate}%（${matchLabel}）`,
+          "rotating",
+          `${q} 季度 5% 轮换命中`
         );
       }
     } else if (!rc.categories.length && !rc.merchants.length) {
@@ -506,7 +563,13 @@ function evaluate(card, merchant, catId) {
   (card.choices || []).forEach((ch, i) => {
     const picks = getChoicePicks(card.id, i, ch.period || "quarter");
     if (matchCat(picks)) {
-      add({ r: ch.rate, cap: ch.cap, period: ch.period }, `choice${i}`, `${ch.label}：${catName(catId)}`);
+      add(
+        { r: ch.rate, cap: ch.cap, period: ch.period },
+        `choice${i}`,
+        `${ch.label}：${catName(catId)}`,
+        "choice",
+        "自选高返现类别命中"
+      );
     } else if (!picks.length && matchCat(ch.options)) {
       notes.push(`可以把「${catName(catId)}」设为${ch.label}（${ch.rate}%）`);
     }
@@ -514,66 +577,684 @@ function evaluate(card, merchant, catId) {
 
   const best = opts.reduce((a, b) => (b.rate > a.rate ? b : a));
   const cpp = card.currency === "points" ? Number(state.cpp[card.program] ?? 1) : 1;
-  return { card, rate: best.rate, eff: best.rate * cpp, why: best.why, cpp, notes };
+  return {
+    card,
+    rate: best.rate,
+    eff: best.rate * cpp,
+    why: best.why,
+    kind: best.kind || "base",
+    kindLabel: best.kindLabel || "全类别保底返现",
+    capTotal: best.capTotal || null,
+    capLeft: best.capLeft ?? null,
+    capPeriod: best.period || null,
+    cpp,
+    notes,
+  };
 }
 const rateOf = (e) => (typeof e === "number" ? e : e.r ?? e.rate);
+
+// 获取推荐页当前参与展示与比价的卡片集合
+function getRecommendCardPool() {
+  if (!DATA?.cards) return [];
+  if (showAllCardsInRecommend || !state.owned.length) {
+    return DATA.cards;
+  }
+  return state.owned.map((id) => DATA.cardMap[id]).filter(Boolean);
+}
+
+// 计算单张卡在总览模式下的最高亮点返现与核心标签
+function cardHeadlineInfo(card) {
+  const cpp = card.currency === "points" ? Number(state.cpp[card.program] ?? 1) : 1;
+  const candidates = [{ rate: card.base, label: `保底 ${card.base}${card.currency === "points" ? "x" : "%"}` }];
+
+  Object.entries(card.rates || {}).forEach(([k, v]) => {
+    const r = rateOf(v);
+    candidates.push({ rate: r, label: `${catName(k)} ${r}${card.currency === "points" ? "x" : "%"}` });
+  });
+  Object.entries(card.merchants || {}).forEach(([k, v]) => {
+    const r = rateOf(v);
+    candidates.push({ rate: r, label: `${merchantName(k)} ${r}${card.currency === "points" ? "x" : "%"}` });
+  });
+  if (card.rotating) {
+    const q = currentQuarter();
+    const names = rotatingItemNames(card, q);
+    candidates.push({
+      rate: card.rotating.rate,
+      label: names.length ? `${q} ${card.rotating.rate}%：${names.slice(0, 2).join("/")}` : `${q} 轮换 ${card.rotating.rate}%`,
+    });
+  }
+  (card.choices || []).forEach((ch) => {
+    candidates.push({ rate: ch.rate, label: `${ch.label} ${ch.rate}%` });
+  });
+
+  const top = candidates.reduce((a, b) => (b.rate > a.rate ? b : a), candidates[0]);
+  const topEff = top.rate * cpp;
+  return {
+    topRate: top.rate,
+    topEff,
+    rateBadge: `最高 ${fmtPct(topEff)}`,
+    highlightText: window.CARD_ART?.[card.id]?.badge || top.label,
+  };
+}
+
+// 根据搜索框输入实时匹配最佳商家或类别
+function autoMatchQuery(rawQuery) {
+  const q = String(rawQuery || "").trim().toLowerCase();
+  if (!q) return null;
+
+  // 1. 精确匹配类别名称或 ID（如 "超市"、"加油"、"餐厅"、"网购"、"药店"、"流媒体"）
+  const exactCat = DATA.categories.find(
+    (c) => c.name.toLowerCase() === q || c.id.toLowerCase() === q
+  );
+  if (exactCat) return { type: "category", id: exactCat.id };
+
+  // 2. 精确匹配商家 ID / 名称，或商家名称前缀匹配（如 "costco"、"whole"、"amazon"、"starbucks"）
+  const prefixMer = DATA.merchants.find(
+    (m) =>
+      m.id.toLowerCase() === q ||
+      m.name.toLowerCase() === q ||
+      m.name.toLowerCase().startsWith(q) ||
+      m.id.toLowerCase().startsWith(q)
+  );
+  if (prefixMer) return { type: "merchant", id: prefixMer.id };
+
+  // 3. 常见中英文别名匹配（如 "costco gas"、"好市多"、"星巴克"、"缺德舅"、"大华"）
+  for (const m of DATA.merchants) {
+    const aliases = MERCHANT_ALIASES[m.id] || [];
+    if (aliases.some((a) => a === q || a.startsWith(q) || a.includes(q) || (q.length >= 2 && q.includes(a)))) {
+      return { type: "merchant", id: m.id };
+    }
+  }
+
+  // 4. 商家名称包含关键字（如 "walgreens"、"chevron"、"lyft"）
+  const subMer = DATA.merchants.find((m) => m.name.toLowerCase().includes(q) || m.id.toLowerCase().includes(q));
+  if (subMer) return { type: "merchant", id: subMer.id };
+
+  // 5. 类别名称包含关键字（如 "机票"、"酒店"、"仓储"、"快餐"）
+  const subCat = DATA.categories.find((c) => c.name.toLowerCase().includes(q));
+  if (subCat) return { type: "category", id: subCat.id };
+
+  // 6. 商家所属类别名称包含关键字
+  const catMer = DATA.merchants.find((m) => catName(m.category).toLowerCase().includes(q));
+  if (catMer) return { type: "merchant", id: catMer.id };
+
+  return null;
+}
+
+function filterMerchantsByQuery(rawQuery) {
+  const q = String(rawQuery || "").trim().toLowerCase();
+  if (!q) return DATA.merchants;
+  return DATA.merchants.filter((m) => {
+    const aliases = MERCHANT_ALIASES[m.id] || [];
+    return (
+      m.name.toLowerCase().includes(q) ||
+      m.id.toLowerCase().includes(q) ||
+      catName(m.category).toLowerCase().includes(q) ||
+      aliases.some((a) => a.includes(q) || (q.length >= 2 && q.includes(a)))
+    );
+  });
+}
 
 function recommend() {
   if (!selected) return null;
   const merchant = selected.type === "merchant" ? DATA.merchantMap[selected.id] : null;
   const catId = merchant ? merchant.category : selected.id;
-  const owned = state.owned.map((id) => DATA.cardMap[id]).filter(Boolean);
-  const res = owned.map((c) => evaluate(c, merchant, catId));
-  const ok = res.filter((r) => !r.excluded).sort((a, b) => b.eff - a.eff || a.card.annualFee - b.card.annualFee);
-  return { merchant, catId, ok, bad: res.filter((r) => r.excluded) };
+  if (!catId || !DATA.catMap[catId]) return null;
+  const pool = getRecommendCardPool();
+  const res = pool.map((c) => evaluate(c, merchant, catId));
+  const ok = res
+    .filter((r) => !r.excluded)
+    .sort((a, b) => {
+      const aOwned = state.owned.includes(a.card.id) ? 1 : 0;
+      const bOwned = state.owned.includes(b.card.id) ? 1 : 0;
+      return b.eff - a.eff || bOwned - aOwned || a.card.annualFee - b.card.annualFee;
+    });
+  return { merchant, catId, ok, bad: res.filter((r) => r.excluded), pool };
 }
 
-// ---------- 渲染：推荐 ----------
+// ---------- 渲染：推荐（实时输入动态弹出最佳卡 + 为什么选这张卡 + 一站式全卡包舞台） ----------
 function renderRecommend() {
   const root = document.getElementById("tab-recommend");
-  root.innerHTML = "";
-  if (!state.owned.length) {
-    root.append(
-      el(`<div class="empty">先去「我的卡包」勾选你有的卡，然后回来选商家。<br><button class="btn" data-goto="wallet">去勾选卡片</button></div>`)
-    );
-    return;
+  if (!root) return;
+
+  // 仅在首次挂载时创建 #mq 和骨架容器，绝不在打字或切换时销毁 #mq，确保输入焦点与中文输入法合成永不中断
+  if (!root.querySelector("#mq")) {
+    root.innerHTML = "";
+    const shell = el(`
+      <div class="recommend-layout">
+        <section class="picker">
+          <div class="search-box-wrap">
+            <span class="search-icon" aria-hidden="true">🔍</span>
+            <input id="mq" type="search" placeholder="输入商家或消费类别（如 Costco、Whole Foods、Amazon、Starbucks、超市、加油）实时弹出最佳卡…" autocomplete="off">
+            <button type="button" id="mq-clear" class="search-clear-btn" hidden aria-label="清除搜索">✕</button>
+          </div>
+          <div id="mlist" class="chips"></div>
+          <div class="sub">或者直接选类别</div>
+          <div id="clist" class="chips"></div>
+        </section>
+        <div id="hero-pop-slot"></div>
+        <div id="wallet-stage-slot"></div>
+        <div id="results-list-slot"></div>
+      </div>`);
+    root.append(shell);
+
+    const mqInput = root.querySelector("#mq");
+    const clearBtn = root.querySelector("#mq-clear");
+    let isComposing = false;
+
+    const onQueryChange = (val) => {
+      recommendQuery = val;
+      clearBtn.hidden = !val.length;
+      const trimmed = val.trim();
+      if (trimmed) {
+        const matched = autoMatchQuery(trimmed);
+        if (matched) {
+          selected = matched;
+          previewCardId = null;
+        } else {
+          selected = null;
+          previewCardId = null;
+        }
+      } else {
+        selected = manualSelected;
+        previewCardId = null;
+      }
+      updateRecommendContent(root);
+    };
+
+    mqInput.addEventListener("compositionstart", () => {
+      isComposing = true;
+    });
+    mqInput.addEventListener("compositionend", (e) => {
+      isComposing = false;
+      onQueryChange(e.target.value);
+    });
+    mqInput.addEventListener("input", (e) => {
+      // 无论是否处于输入法合成阶段，只更新外部兄弟节点，绝不触碰 #mq 自身，保证光标与拼音合成丝滑不丢失
+      onQueryChange(e.target.value);
+    });
+
+    clearBtn.addEventListener("click", () => {
+      mqInput.value = "";
+      recommendQuery = "";
+      clearBtn.hidden = true;
+      selected = manualSelected;
+      previewCardId = null;
+      updateRecommendContent(root);
+      mqInput.focus();
+    });
+  } else {
+    const mqInput = root.querySelector("#mq");
+    const clearBtn = root.querySelector("#mq-clear");
+    if (document.activeElement !== mqInput && mqInput.value !== recommendQuery) {
+      mqInput.value = recommendQuery;
+    }
+    if (clearBtn) clearBtn.hidden = !mqInput.value.length;
   }
-  root.append(
-    el(`
-    <section class="picker">
-      <input id="mq" type="search" placeholder="搜索商家，比如 Costco、Whole Foods、Amazon…" autocomplete="off">
-      <div id="mlist" class="chips"></div>
-      <div class="sub">或者直接选类别</div>
-      <div id="clist" class="chips"></div>
-    </section>`)
-  );
+
+  updateRecommendContent(root);
+}
+
+function updateRecommendContent(root = document.getElementById("tab-recommend")) {
+  if (!root) return;
   const mlist = root.querySelector("#mlist");
-  const drawMerchants = (q = "") => {
-    q = q.trim().toLowerCase();
-    mlist.innerHTML = "";
-    DATA.merchants
-      .filter((m) => !q || m.name.toLowerCase().includes(q) || catName(m.category).includes(q))
-      .forEach((m) =>
-        mlist.append(chip(m.name, selected?.type === "merchant" && selected.id === m.id, () => pick("merchant", m.id)))
-      );
-  };
-  drawMerchants();
-  root.querySelector("#mq").addEventListener("input", (e) => drawMerchants(e.target.value));
   const clist = root.querySelector("#clist");
-  DATA.categories.forEach((c) =>
-    clist.append(chip(c.name, selected?.type === "category" && selected.id === c.id, () => pick("category", c.id)))
-  );
+  const heroSlot = root.querySelector("#hero-pop-slot");
+  const stageSlot = root.querySelector("#wallet-stage-slot");
+  const resultsSlot = root.querySelector("#results-list-slot");
+
+  // 1. 刷新商家与类别胶囊（高亮当前自动匹配或手动选中的项）
+  if (mlist) {
+    mlist.innerHTML = "";
+    const filteredMerchants = filterMerchantsByQuery(recommendQuery);
+    filteredMerchants.forEach((m) => {
+      const isOn = selected?.type === "merchant" && selected.id === m.id;
+      mlist.append(chip(m.name, isOn, () => pick("merchant", m.id)));
+    });
+    if (!filteredMerchants.length && recommendQuery.trim()) {
+      mlist.append(el(`<span class="sub">未找到包含「${recommendQuery.trim()}」的特定商家，已为你尝试匹配通用类别或可点击下方类别</span>`));
+    }
+  }
+
+  if (clist) {
+    clist.innerHTML = "";
+    DATA.categories.forEach((c) => {
+      const isOn = selected?.type === "category" && selected.id === c.id;
+      clist.append(chip(c.name, isOn, () => pick("category", c.id)));
+    });
+  }
 
   const r = recommend();
-  if (!r) return;
+
+  // 2. 动态弹出首选推荐卡聚光灯 + 「为什么选这张卡」深度解析面板
+  if (heroSlot) {
+    heroSlot.innerHTML = "";
+    if (r) {
+      heroSlot.append(buildHeroRecommendPop(r));
+    }
+  }
+
+  // 3. 一站式全卡包展示舞台（始终显示所有包含的卡片，并在选中商家时动态更新排名、返现率与发光状态）
+  if (stageSlot) {
+    stageSlot.innerHTML = "";
+    stageSlot.append(buildAllCardsStage(r));
+  }
+
+  // 4. 完整排行榜明细列表
+  if (resultsSlot) {
+    resultsSlot.innerHTML = "";
+    if (r) {
+      resultsSlot.append(buildResultsSection(r));
+    }
+  }
+}
+
+function buildHeroRecommendPop(r) {
+  const best = r.ok[0] || null;
+  const allEntries = [...r.ok, ...r.bad];
+  const activeEntry = (previewCardId && allEntries.find((x) => x.card.id === previewCardId)) || best;
+  const targetTitle = r.merchant ? r.merchant.name : catName(r.catId);
+  const animKey = `${selected?.type}:${selected?.id}:${activeEntry?.card?.id || "none"}`;
+  const shouldAnimate = animKey !== lastHeroAnimKey;
+  lastHeroAnimKey = animKey;
+
+  if (!activeEntry) {
+    return el(`
+      <section class="hero-recommend-pop is-empty ${shouldAnimate ? "pop-animate" : ""}">
+        <div class="hero-pop-header">
+          <div class="hero-target-info">
+            <span class="hero-live-dot"></span>
+            <span class="hero-target-label">当前场景：<strong>${targetTitle}</strong></span>
+            <span class="tag">${catName(r.catId)}</span>
+          </div>
+        </div>
+        <div class="warn">⚠️ ${r.merchant?.note || "当前卡包中没有可在此商家刷卡的卡片（受发卡组织网络限制）。"}</div>
+        <div class="empty">你的卡在这里都刷不了，可前往「添加卡包」添加支持对应网络的卡片。</div>
+      </section>`);
+  }
+
+  const isBest = best && activeEntry.card.id === best.card.id;
+  const rankIdx = !activeEntry.excluded ? r.ok.findIndex((x) => x.card.id === activeEntry.card.id) : -1;
+  const runnerUp = r.ok[1] || null;
+  const isOwned = state.owned.length ? state.owned.includes(activeEntry.card.id) : true;
+
+  // 构建「首选理由」文案
+  let primaryReasonHtml = "";
+  if (activeEntry.excluded) {
+    primaryReasonHtml = `
+      <span class="reason-badge bad">网络受限不可刷</span>
+      <div>${activeEntry.reason}。${r.merchant?.note ? `（${r.merchant.note}）` : ""}</div>`;
+  } else {
+    const rateExplain =
+      activeEntry.card.currency === "points"
+        ? `获得 <strong>${activeEntry.rate}x ${activeEntry.card.program} 积分</strong>，按 <strong>${activeEntry.cpp}¢/分</strong> 折算 = 等效 <strong>${fmtPct(activeEntry.eff)}</strong> 返现（每刷 $100 约合 <strong>$${activeEntry.eff.toFixed(2)}</strong> 价值）`
+        : `直接获得 <strong>${fmtPct(activeEntry.eff)}</strong> 现金返还（每刷 $100 立返 <strong>$${activeEntry.eff.toFixed(2)}</strong>）`;
+    primaryReasonHtml = `
+      <div class="reason-headline">
+        <span class="reason-badge ${isBest ? "good" : "neutral"}">${activeEntry.kindLabel || "返现规则命中"}</span>
+        <strong>${activeEntry.why}</strong>
+      </div>
+      <div class="reason-sub">${rateExplain} · ${activeEntry.card.annualFee ? `年费 ${money(activeEntry.card.annualFee)}` : "免年费持有"}</div>`;
+  }
+
+  // 构建「优势对比」文案
+  let compareReasonHtml = "";
+  if (isBest && runnerUp) {
+    const diff = +(best.eff - runnerUp.eff).toFixed(2);
+    if (diff > 0) {
+      compareReasonHtml = `比次选 <strong>${cardLabel(runnerUp.card)}</strong>（${fmtPct(runnerUp.eff)}，${runnerUp.why}）多拿 <strong class="diff-pos">+${fmtPct(diff)}</strong>（每消费 $100 多赚 <strong>$${diff.toFixed(2)}</strong>）。`;
+    } else {
+      compareReasonHtml = `与次选 <strong>${cardLabel(runnerUp.card)}</strong>（${fmtPct(runnerUp.eff)}）返现率并列最高，此卡凭${best.card.annualFee <= runnerUp.card.annualFee ? `更优年费（${best.card.annualFee ? money(best.card.annualFee) : "免年费"}）` : "综合权益"}优先推荐。`;
+    }
+  } else if (!isBest && !activeEntry.excluded && best) {
+    const gap = +(best.eff - activeEntry.eff).toFixed(2);
+    compareReasonHtml = `当前预览卡位列 <strong>#${rankIdx + 1}</strong>（${fmtPct(activeEntry.eff)}），相比 #1 首选 <strong>${cardLabel(best.card)}</strong>（${fmtPct(best.eff)}，${best.why}）少拿 <strong class="diff-neg">-${fmtPct(gap)}</strong>。`;
+  } else if (activeEntry.excluded && best) {
+    compareReasonHtml = `此卡在此商家不可刷（${activeEntry.reason}），请改刷 #1 首选 <strong>${cardLabel(best.card)}</strong>（立享 ${fmtPct(best.eff)}）。`;
+  } else {
+    compareReasonHtml = `当前卡包中唯一适配该消费场景的卡片，稳定获得 <strong>${fmtPct(activeEntry.eff)}</strong> 回馈。`;
+  }
+
+  // 构建「收卡与额度提示」列表
+  const constraintItems = [];
+  if (r.merchant?.networks) {
+    const allowedNets = r.merchant.networks.map((n) => NET_NAME[n] || n).join(" / ");
+    if (!activeEntry.excluded) {
+      constraintItems.push(`✓ <strong>收卡网络验证通过</strong>：${r.merchant.name} 仅支持 ${allowedNets}，此卡为 <strong>${NET_NAME[activeEntry.card.network]}</strong> 可正常刷卡`);
+    } else {
+      constraintItems.push(`✕ <strong>收卡网络受限</strong>：${r.merchant.name} 仅支持 ${allowedNets}，不支持 ${NET_NAME[activeEntry.card.network]}`);
+    }
+  } else {
+    constraintItems.push(`✓ <strong>网络通用</strong>：支持 ${NET_NAME[activeEntry.card.network]} 网络结账`);
+  }
+
+  if (r.merchant?.note) {
+    constraintItems.push(`🏪 <strong>商家提示</strong>：${r.merchant.note}`);
+  }
+  if (activeEntry.capLeft != null && activeEntry.capTotal != null) {
+    const pName = PERIOD_NAME[activeEntry.capPeriod] || "当期";
+    constraintItems.push(`📊 <strong>高返现额度充裕</strong>：${pName}剩余可用额度 <strong>${money(activeEntry.capLeft)}</strong> / 总上限 ${money(activeEntry.capTotal)}`);
+  }
+  if (activeEntry.card.rotating) {
+    const q = currentQuarter();
+    const rotNames = rotatingItemNames(activeEntry.card, q);
+    const actStatus = isCardActivated(activeEntry.card.id, q) ? "✓ 本季已激活" : "⚠️ 需在卡包勾选已激活";
+    constraintItems.push(`📅 <strong>${q} 季度 5% 范围</strong>：${rotNames.join("、") || "待设置"}（${actStatus}）`);
+  }
+  (activeEntry.notes || []).forEach((n) => constraintItems.push(`⚠️ ${n}`));
+  if (activeEntry.card.note) {
+    constraintItems.push(`ℹ️ <strong>用卡贴士</strong>：${activeEntry.card.note}`);
+  }
+
+  const section = el(`
+    <section class="hero-recommend-pop ${shouldAnimate ? "pop-animate" : ""} ${isBest ? "is-best" : "is-preview"}">
+      <div class="hero-pop-header">
+        <div class="hero-target-info">
+          <span class="hero-live-dot"></span>
+          <span class="hero-target-label">推荐刷卡方案：<strong>${targetTitle}</strong></span>
+          <span class="tag">${catName(r.catId)}</span>
+          ${
+            r.merchant?.networks
+              ? `<span class="tag warn">仅收 ${r.merchant.networks.map((n) => NET_NAME[n]).join("/")}</span>`
+              : ""
+          }
+        </div>
+        <div class="hero-pop-actions">
+          ${
+            !isBest && best
+              ? `<button type="button" class="btn small hero-reset-preview">↺ 回到 #1 最佳 (${cardLabel(best.card)})</button>`
+              : ""
+          }
+          <button type="button" class="btn small hero-close-btn">✕ 收起推荐</button>
+        </div>
+      </div>
+
+      <div class="hero-pop-body">
+        <div class="hero-card-stage">
+          <div class="hero-rank-pill ${isBest ? "is-best" : activeEntry.excluded ? "is-excluded" : "is-runner"}">
+            ${
+              isBest
+                ? `🏆 #1 首选推荐卡 · 立享 ${fmtPct(activeEntry.eff)}`
+                : activeEntry.excluded
+                ? `✕ 不可刷预览 · ${activeEntry.reason}`
+                : `🔍 备选预览 #${rankIdx + 1} · ${fmtPct(activeEntry.eff)}`
+            }
+          </div>
+          <div class="hero-card-spotlight">
+            <div class="hero-card-art-slot"></div>
+            <div class="hero-rate-orb ${isBest ? "is-best" : activeEntry.excluded ? "is-excluded" : "is-runner"}">
+              <span class="orb-label">${activeEntry.excluded ? "不可用" : "等效返现"}</span>
+              <strong class="orb-value">${activeEntry.excluded ? "✕" : fmtPct(activeEntry.eff)}</strong>
+              <span class="orb-sub">${
+                activeEntry.excluded
+                  ? NET_NAME[activeEntry.card.network]
+                  : activeEntry.card.currency === "points"
+                  ? `${activeEntry.rate}x 积分 (${activeEntry.cpp}¢)`
+                  : "直接返现"
+              }</span>
+            </div>
+          </div>
+          <div class="hero-card-caption">
+            <strong>${cardLabel(activeEntry.card)}</strong>
+            <span class="net">${NET_NAME[activeEntry.card.network]}</span>
+            <span class="fee">${activeEntry.card.annualFee ? "年费 " + money(activeEntry.card.annualFee) : "免年费"}</span>
+          </div>
+        </div>
+
+        <div class="hero-why-panel why-choose-box">
+          <div class="why-panel-header">
+            <h3>💡 为什么选这张卡？</h3>
+            <span class="why-card-subtitle">${cardLabel(activeEntry.card)} · ${
+    isBest ? "当前场景最优解" : activeEntry.excluded ? "受限原因说明" : `第 #${rankIdx + 1} 顺位对比`
+  }</span>
+          </div>
+          <div class="why-grid">
+            <div class="why-item primary-reason">
+              <div class="why-item-title">🏅 首选理由</div>
+              <div class="why-item-body">${primaryReasonHtml}</div>
+            </div>
+            <div class="why-item compare-reason">
+              <div class="why-item-title">📈 优势对比</div>
+              <div class="why-item-body">${compareReasonHtml}</div>
+            </div>
+            <div class="why-item constraint-reason">
+              <div class="why-item-title">🛡️ 收卡与额度提示</div>
+              <ul class="why-item-list">
+                ${constraintItems.map((item) => `<li>${item}</li>`).join("")}
+              </ul>
+            </div>
+          </div>
+          ${
+            r.ok.length > 1
+              ? `<div class="why-compare-bar">
+                  <span class="compare-bar-label">点击切换对比：</span>
+                  <div class="compare-pills"></div>
+                </div>`
+              : ""
+          }
+        </div>
+      </div>
+    </section>`);
+
+  const artSlot = section.querySelector(".hero-card-art-slot");
+  artSlot.append(
+    mountCardArt(activeEntry.card, {
+      owned: isOwned,
+      active: true,
+      badgeText: activeEntry.excluded ? activeEntry.reason : `${fmtPct(activeEntry.eff)} · ${activeEntry.why}`,
+    })
+  );
+
+  const resetPreviewBtn = section.querySelector(".hero-reset-preview");
+  if (resetPreviewBtn) {
+    resetPreviewBtn.onclick = () => {
+      previewCardId = null;
+      updateRecommendContent();
+    };
+  }
+
+  const closeBtn = section.querySelector(".hero-close-btn");
+  if (closeBtn) {
+    closeBtn.onclick = () => {
+      selected = null;
+      manualSelected = null;
+      previewCardId = null;
+      recommendQuery = "";
+      const mqInput = document.getElementById("mq");
+      const clearBtn = document.getElementById("mq-clear");
+      if (mqInput) mqInput.value = "";
+      if (clearBtn) clearBtn.hidden = true;
+      updateRecommendContent();
+    };
+  }
+
+  const comparePills = section.querySelector(".compare-pills");
+  if (comparePills) {
+    r.ok.slice(0, 5).forEach((x, idx) => {
+      const isCurrent = x.card.id === activeEntry.card.id;
+      const btn = el(`
+        <button type="button" class="compare-pill ${isCurrent ? "active" : ""} ${idx === 0 ? "is-top" : ""}">
+          ${idx === 0 ? "🏆 #1" : `#${idx + 1}`} ${x.card.name} <strong>${fmtPct(x.eff)}</strong>
+        </button>`);
+      btn.onclick = () => {
+        previewCardId = idx === 0 ? null : x.card.id;
+        updateRecommendContent();
+      };
+      comparePills.append(btn);
+    });
+  }
+
+  return section;
+}
+
+// 一站式全卡包展示舞台（在推荐页直观陈列所有包含的卡片，并根据所选商家实时更新排名与有效返现率）
+function buildAllCardsStage(r) {
+  const pool = getRecommendCardPool();
+  const hasOwned = state.owned.length > 0;
+  const showingAllFallback = !hasOwned;
+  const targetTitle = r ? (r.merchant ? r.merchant.name : catName(r.catId)) : null;
+  const bestCardId = r?.ok?.[0]?.card?.id || null;
+  const activePreviewId = previewCardId || bestCardId;
+
+  const stage = el(`
+    <section class="wallet-stage">
+      <div class="wallet-stage-header">
+        <div class="wallet-stage-title-wrap">
+          <h3>
+            🗂️ ${showingAllFallback || showAllCardsInRecommend ? "一站式全部卡片总览" : "添加卡包一站式总览"}
+            <span class="stage-count">${pool.length} 张卡片</span>
+          </h3>
+          <div class="wallet-stage-sub">
+            ${
+              r
+                ? `当前按「<strong>${targetTitle}</strong>」实时排序 · 点击下方任意卡面可在上方聚光灯弹出详情与对比`
+                : `一处直观浏览所有卡片与本季核心高返现亮点 · 在上方输入商家或点击类别即可动态弹出最佳推荐卡`
+            }
+          </div>
+        </div>
+        <div class="wallet-stage-actions">
+          ${
+            hasOwned && state.owned.length < DATA.cards.length
+              ? `<button type="button" class="btn small stage-toggle-all">
+                  ${showAllCardsInRecommend ? `仅看添加卡包 (${state.owned.length})` : `显示全部收录卡片 (${DATA.cards.length})`}
+                </button>`
+              : ""
+          }
+          <button type="button" class="btn small" data-goto="wallet">
+            ${hasOwned ? `管理卡包 (${state.owned.length})` : `去「添加卡包」勾选持卡`}
+          </button>
+        </div>
+      </div>
+      <div class="all-cards-grid"></div>
+    </section>`);
+
+  const toggleAllBtn = stage.querySelector(".stage-toggle-all");
+  if (toggleAllBtn) {
+    toggleAllBtn.onclick = () => {
+      showAllCardsInRecommend = !showAllCardsInRecommend;
+      previewCardId = null;
+      updateRecommendContent();
+    };
+  }
+
+  const grid = stage.querySelector(".all-cards-grid");
+
+  if (r) {
+    // 已选商家或类别：按排名顺序显示每张卡的实时名次徽章、有效返现率与卡面状态
+    const entries = [...r.ok.map((x, idx) => ({ ...x, rank: idx + 1 })), ...r.bad.map((x) => ({ ...x, rank: null }))];
+    entries.forEach((entry) => {
+      const c = entry.card;
+      const isWinner = entry.rank === 1;
+      const isPreviewed = activePreviewId === c.id;
+      const isExcluded = Boolean(entry.excluded);
+      const isOwned = state.owned.length ? state.owned.includes(c.id) : true;
+
+      const stateCls = [
+        "stage-card",
+        isWinner ? "is-winner rank-1" : "",
+        !isWinner && !isExcluded ? "is-runner-up" : "",
+        isExcluded ? "is-excluded off" : "",
+        isPreviewed ? "is-previewed" : "",
+      ]
+        .filter(Boolean)
+        .join(" ");
+
+      const rankBadgeHtml = isWinner
+        ? `<span class="stage-rank-badge winner">🏆 #1 最佳</span>`
+        : isExcluded
+        ? `<span class="stage-rank-badge excluded">✕ 不可用</span>`
+        : `<span class="stage-rank-badge runner">#${entry.rank} 备选</span>`;
+
+      const rateBadgeHtml = isExcluded
+        ? `<span class="stage-rate-badge excluded">不可刷</span>`
+        : `<span class="stage-rate-badge ${isWinner ? "winner" : ""}">${fmtPct(entry.eff)}</span>`;
+
+      const cardEl = el(`
+        <article class="${stateCls}" data-card-id="${c.id}" data-rank="${entry.rank || "excluded"}" tabindex="0" role="button" aria-label="${cardLabel(c)}">
+          <div class="stage-card-top">
+            ${rankBadgeHtml}
+            ${rateBadgeHtml}
+          </div>
+          <div class="stage-card-art"></div>
+          <div class="stage-card-footer">
+            <div class="stage-card-name">${cardLabel(c)} <span class="net">${NET_NAME[c.network]}</span></div>
+            <div class="stage-card-why">${
+              isExcluded
+                ? entry.reason
+                : `${entry.why}${c.currency === "points" ? ` (${entry.cpp}¢/分)` : ""}`
+            }</div>
+          </div>
+        </article>`);
+
+      cardEl.querySelector(".stage-card-art").append(
+        mountCardArt(c, {
+          owned: isOwned,
+          active: isWinner || isPreviewed,
+          badgeText: isExcluded ? entry.reason : `${fmtPct(entry.eff)} · ${entry.why}`,
+        })
+      );
+
+      const onSelectStageCard = () => {
+        previewCardId = isWinner ? null : c.id;
+        updateRecommendContent();
+        document.querySelector(".hero-recommend-pop")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      };
+      cardEl.onclick = onSelectStageCard;
+      cardEl.onkeydown = (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onSelectStageCard();
+        }
+      };
+
+      grid.append(cardEl);
+    });
+  } else {
+    // 默认全卡包总览：展示每张卡的逼真卡面、最高返现率与当季核心亮点
+    pool.forEach((c) => {
+      const info = cardHeadlineInfo(c);
+      const isOwned = state.owned.length ? state.owned.includes(c.id) : true;
+      const cardEl = el(`
+        <article class="stage-card is-overview" data-card-id="${c.id}">
+          <div class="stage-card-top">
+            <span class="stage-rank-badge overview">${issuerName(c.issuer)} · ${NET_NAME[c.network]}</span>
+            <span class="stage-rate-badge overview">${info.rateBadge}</span>
+          </div>
+          <div class="stage-card-art"></div>
+          <div class="stage-card-footer">
+            <div class="stage-card-name">
+              ${cardLabel(c)}
+              <span class="fee">${c.annualFee ? "年费 " + money(c.annualFee) : "免年费"}</span>
+            </div>
+            <div class="stage-card-why">${summary(c)}</div>
+          </div>
+        </article>`);
+
+      cardEl.querySelector(".stage-card-art").append(
+        mountCardArt(c, {
+          owned: isOwned,
+          active: false,
+          badgeText: `${info.highlightText} · ${c.annualFee ? "年费 $" + c.annualFee : "免年费"}`,
+        })
+      );
+
+      grid.append(cardEl);
+    });
+  }
+
+  return stage;
+}
+
+function buildResultsSection(r) {
   const out = el(`<section class="results"></section>`);
-  out.append(el(`<h2>${r.merchant ? r.merchant.name : catName(r.catId)} <span class="tag">${catName(r.catId)}</span></h2>`));
+  out.append(el(`<h2>${r.merchant ? r.merchant.name : catName(r.catId)} 全部卡片返现排行 <span class="tag">${catName(r.catId)}</span></h2>`));
   if (r.merchant?.note) out.append(el(`<div class="warn">⚠️ ${r.merchant.note}</div>`));
   if (!r.ok.length) out.append(el(`<div class="empty">你的卡在这里都刷不了。</div>`));
 
   r.ok.forEach((x, i) => {
+    const isOwned = state.owned.includes(x.card.id);
     const row = el(`
-      <div class="result ${i === 0 ? "best" : ""}">
+      <div class="result ${i === 0 ? "best" : ""}" data-card-id="${x.card.id}">
         <div class="rank">${i === 0 ? "最佳" : i + 1}</div>
         <div class="result-art"></div>
         <div class="body">
@@ -585,23 +1266,30 @@ function renderRecommend() {
         </div>
         <div class="pct">${fmtPct(x.eff)}</div>
       </div>`);
-    row.querySelector(".result-art").replaceWith(mountCardArt(x.card, { mini: true, owned: true }));
+    row.querySelector(".result-art").replaceWith(mountCardArt(x.card, { mini: true, owned: isOwned }));
+    row.onclick = () => {
+      previewCardId = i === 0 ? null : x.card.id;
+      updateRecommendContent();
+      document.querySelector(".hero-recommend-pop")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    };
     out.append(row);
   });
 
   r.bad.forEach((x) => {
+    const isOwned = state.owned.includes(x.card.id);
     const row = el(`
-      <div class="result off">
+      <div class="result off" data-card-id="${x.card.id}">
         <div class="rank">✕</div>
         <div class="result-art"></div>
         <div class="body"><div class="name">${cardLabel(x.card)}</div><div class="why">${x.reason}</div></div>
         <div class="pct">—</div>
       </div>`);
-    row.querySelector(".result-art").replaceWith(mountCardArt(x.card, { mini: true, owned: true }));
+    row.querySelector(".result-art").replaceWith(mountCardArt(x.card, { mini: true, owned: isOwned }));
     out.append(row);
   });
-  root.append(out);
+  return out;
 }
+
 function chip(label, on, fn) {
   const b = el(`<button type="button" class="chip ${on ? "on" : ""}"></button>`);
   b.textContent = label;
@@ -609,9 +1297,10 @@ function chip(label, on, fn) {
   return b;
 }
 function pick(type, id) {
+  manualSelected = { type, id };
   selected = { type, id };
+  previewCardId = null;
   renderRecommend();
-  document.querySelector(".results")?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 // ---------- 渲染：卡包（按发卡行堆叠卡组 + 手指左右滑动翻页） ----------
@@ -1263,7 +1952,7 @@ async function init() {
   });
   document.getElementById("quarter").textContent = `${currentQuarter()} · ${currentMonth()}`;
   const start = location.hash.slice(1);
-  showTab(["recommend", "wallet", "settings"].includes(start) ? start : state.owned.length ? "recommend" : "wallet");
+  showTab(["recommend", "wallet", "settings"].includes(start) ? start : "recommend");
 }
 init().catch((e) => {
   document.querySelector("main").innerHTML = `<div class="empty">数据加载失败：${e.message}</div>`;
