@@ -1,6 +1,6 @@
 {
-  "updated": "2026-11-14",
-  "disclaimer": "返现规则根据公开资料整理，可能已经过时，请以发卡行官网为准。可以在「我的卡包」里调整。",
+  "updated": "2026-11-15",
+  "disclaimer": "返现规则根据公开资料整理，可能已经过时，请以发卡行官网为准。可以在「我的卡包」里调整或一键同步本季官方类别。",
   "issuers": [
     { "id": "chase", "name": "Chase" },
     { "id": "amex", "name": "American Express" },
@@ -14,130 +14,535 @@
   ],
   "cards": [
     {
-      "id": "chase-sapphire-preferred", "issuer": "chase", "name": "Sapphire Preferred",
-      "network": "visa", "currency": "points", "program": "Chase Ultimate Rewards", "annualFee": 95,
-      "base": 1, "rates": { "dining": 3, "streaming": 3, "travel": 2 }
+      "id": "chase-sapphire-preferred",
+      "issuer": "chase",
+      "name": "Sapphire Preferred",
+      "network": "visa",
+      "currency": "points",
+      "program": "Chase Ultimate Rewards",
+      "annualFee": 95,
+      "base": 1,
+      "rates": { "dining": 3, "streaming": 3, "travel": 2 },
+      "officialUrl": "https://creditcards.chase.com/rewards-credit-cards/sapphire/preferred",
+      "officialLabel": "Chase CSP 官方权益说明",
+      "art": {
+        "bg": "linear-gradient(135deg, #0a2540 0%, #1d4ed8 52%, #0f172a 100%)",
+        "text": "#f8fafc",
+        "accent": "#60a5fa",
+        "finish": "metal",
+        "chip": "silver",
+        "pattern": "facets"
+      }
     },
     {
-      "id": "chase-sapphire-reserve", "issuer": "chase", "name": "Sapphire Reserve",
-      "network": "visa", "currency": "points", "program": "Chase Ultimate Rewards", "annualFee": 795,
-      "base": 1, "rates": { "dining": 3, "flights": 4, "hotels": 4 }
+      "id": "chase-sapphire-reserve",
+      "issuer": "chase",
+      "name": "Sapphire Reserve",
+      "network": "visa",
+      "currency": "points",
+      "program": "Chase Ultimate Rewards",
+      "annualFee": 795,
+      "base": 1,
+      "rates": { "dining": 3, "flights": 4, "hotels": 4 },
+      "officialUrl": "https://creditcards.chase.com/rewards-credit-cards/sapphire/reserve",
+      "officialLabel": "Chase CSR 官方权益说明",
+      "art": {
+        "bg": "linear-gradient(135deg, #060d1f 0%, #0f2942 48%, #1e1b4b 100%)",
+        "text": "#f8fafc",
+        "accent": "#38bdf8",
+        "finish": "metal",
+        "chip": "silver",
+        "pattern": "facets"
+      }
     },
     {
-      "id": "chase-freedom-flex", "issuer": "chase", "name": "Freedom Flex",
-      "network": "mastercard", "currency": "cash", "annualFee": 0,
-      "base": 1, "rates": { "dining": 3, "drugstore": 3 },
-      "rotating": { "rate": 5, "cap": 1500, "needsActivation": true }
+      "id": "chase-freedom-flex",
+      "issuer": "chase",
+      "name": "Freedom Flex",
+      "network": "mastercard",
+      "currency": "cash",
+      "annualFee": 0,
+      "base": 1,
+      "rates": { "dining": 3, "drugstore": 3 },
+      "rotating": { "rate": 5, "cap": 1500, "needsActivation": true },
+      "resetPeriod": "quarter",
+      "officialUrl": "https://www.chase.com/personal/credit-cards/freedom/flex",
+      "officialLabel": "Chase 5% 官方日历与激活",
+      "art": {
+        "bg": "linear-gradient(135deg, #0284c7 0%, #0369a1 45%, #1e3a8a 100%)",
+        "text": "#ffffff",
+        "accent": "#38bdf8",
+        "finish": "gloss",
+        "chip": "silver",
+        "pattern": "waves"
+      }
     },
     {
-      "id": "chase-freedom-unlimited", "issuer": "chase", "name": "Freedom Unlimited",
-      "network": "visa", "currency": "cash", "annualFee": 0,
-      "base": 1.5, "rates": { "dining": 3, "drugstore": 3 }
+      "id": "chase-freedom-unlimited",
+      "issuer": "chase",
+      "name": "Freedom Unlimited",
+      "network": "visa",
+      "currency": "cash",
+      "annualFee": 0,
+      "base": 1.5,
+      "rates": { "dining": 3, "drugstore": 3 },
+      "officialUrl": "https://creditcards.chase.com/cash-back-credit-cards/freedom/unlimited",
+      "officialLabel": "Chase CFU 官方说明",
+      "art": {
+        "bg": "linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 55%, #0f172a 100%)",
+        "text": "#ffffff",
+        "accent": "#93c5fd",
+        "finish": "gloss",
+        "chip": "silver",
+        "pattern": "arcs"
+      }
     },
     {
-      "id": "chase-amazon-prime", "issuer": "chase", "name": "Prime Visa (Amazon)",
-      "network": "visa", "currency": "cash", "annualFee": 0,
-      "base": 1, "rates": { "dining": 2, "gas": 2, "transit": 2 },
-      "merchants": { "amazon": 5, "wholefoods": 5 }
+      "id": "chase-amazon-prime",
+      "issuer": "chase",
+      "name": "Prime Visa (Amazon)",
+      "network": "visa",
+      "currency": "cash",
+      "annualFee": 0,
+      "base": 1,
+      "rates": { "dining": 2, "gas": 2, "transit": 2 },
+      "merchants": { "amazon": 5, "wholefoods": 5 },
+      "officialUrl": "https://www.amazon.com/dp/BT00LN946S",
+      "officialLabel": "Amazon Prime Visa 官方说明",
+      "art": {
+        "bg": "linear-gradient(135deg, #18181b 0%, #27272a 55%, #09090b 100%)",
+        "text": "#f4f4f5",
+        "accent": "#00a8e1",
+        "finish": "metal",
+        "chip": "gold",
+        "pattern": "prime"
+      }
     },
     {
-      "id": "amex-gold", "issuer": "amex", "name": "Gold Card",
-      "network": "amex", "currency": "points", "program": "Amex Membership Rewards", "annualFee": 325,
-      "base": 1, "rates": { "dining": 4, "grocery": { "r": 4, "cap": 25000, "period": "year" }, "flights": 3 }
+      "id": "amex-gold",
+      "issuer": "amex",
+      "name": "Gold Card",
+      "network": "amex",
+      "currency": "points",
+      "program": "Amex Membership Rewards",
+      "annualFee": 325,
+      "base": 1,
+      "rates": { "dining": 4, "grocery": { "r": 4, "cap": 25000, "period": "year" }, "flights": 3 },
+      "resetPeriod": "year",
+      "officialUrl": "https://www.americanexpress.com/us/credit-cards/card/gold-card/",
+      "officialLabel": "Amex Gold 官方权益说明",
+      "art": {
+        "bg": "linear-gradient(135deg, #d4af37 0%, #f3e5ab 38%, #aa7c11 72%, #8a640f 100%)",
+        "text": "#271705",
+        "accent": "#422006",
+        "lightText": true,
+        "finish": "metal",
+        "chip": "gold",
+        "pattern": "centurion"
+      }
     },
     {
-      "id": "amex-platinum", "issuer": "amex", "name": "Platinum Card",
-      "network": "amex", "currency": "points", "program": "Amex Membership Rewards", "annualFee": 895,
-      "base": 1, "rates": { "flights": 5 }
+      "id": "amex-platinum",
+      "issuer": "amex",
+      "name": "Platinum Card",
+      "network": "amex",
+      "currency": "points",
+      "program": "Amex Membership Rewards",
+      "annualFee": 895,
+      "base": 1,
+      "rates": { "flights": 5 },
+      "officialUrl": "https://www.americanexpress.com/us/credit-cards/card/platinum/",
+      "officialLabel": "Amex Platinum 官方权益说明",
+      "art": {
+        "bg": "linear-gradient(135deg, #cbd5e1 0%, #f8fafc 42%, #94a3b8 75%, #64748b 100%)",
+        "text": "#0f172a",
+        "accent": "#1e293b",
+        "lightText": true,
+        "finish": "metal",
+        "chip": "silver",
+        "pattern": "centurion"
+      }
     },
     {
-      "id": "amex-bcp", "issuer": "amex", "name": "Blue Cash Preferred",
-      "network": "amex", "currency": "cash", "annualFee": 95,
-      "base": 1, "rates": { "grocery": { "r": 6, "cap": 6000, "period": "year" }, "streaming": 6, "gas": 3, "transit": 3 }
+      "id": "amex-bcp",
+      "issuer": "amex",
+      "name": "Blue Cash Preferred",
+      "network": "amex",
+      "currency": "cash",
+      "annualFee": 95,
+      "base": 1,
+      "rates": { "grocery": { "r": 6, "cap": 6000, "period": "year" }, "streaming": 6, "gas": 3, "transit": 3 },
+      "resetPeriod": "year",
+      "officialUrl": "https://www.americanexpress.com/us/credit-cards/card/blue-cash-preferred/",
+      "officialLabel": "Amex BCP 6% 官方说明",
+      "art": {
+        "bg": "linear-gradient(135deg, #002663 0%, #006fcf 55%, #0a192f 100%)",
+        "text": "#ffffff",
+        "accent": "#7dd3fc",
+        "finish": "gloss",
+        "chip": "silver",
+        "pattern": "amex-box"
+      }
     },
     {
-      "id": "amex-bce", "issuer": "amex", "name": "Blue Cash Everyday",
-      "network": "amex", "currency": "cash", "annualFee": 0,
-      "base": 1, "rates": { "grocery": { "r": 3, "cap": 6000, "period": "year" }, "gas": { "r": 3, "cap": 6000, "period": "year" }, "online": { "r": 3, "cap": 6000, "period": "year" } }
+      "id": "amex-bce",
+      "issuer": "amex",
+      "name": "Blue Cash Everyday",
+      "network": "amex",
+      "currency": "cash",
+      "annualFee": 0,
+      "base": 1,
+      "rates": {
+        "grocery": { "r": 3, "cap": 6000, "period": "year" },
+        "gas": { "r": 3, "cap": 6000, "period": "year" },
+        "online": { "r": 3, "cap": 6000, "period": "year" }
+      },
+      "resetPeriod": "year",
+      "officialUrl": "https://www.americanexpress.com/us/credit-cards/card/blue-cash-everyday/",
+      "officialLabel": "Amex BCE 3% 官方说明",
+      "art": {
+        "bg": "linear-gradient(135deg, #0284c7 0%, #38bdf8 50%, #0369a1 100%)",
+        "text": "#ffffff",
+        "accent": "#e0f2fe",
+        "finish": "gloss",
+        "chip": "silver",
+        "pattern": "amex-box"
+      }
     },
     {
-      "id": "citi-double-cash", "issuer": "citi", "name": "Double Cash",
-      "network": "mastercard", "currency": "cash", "annualFee": 0, "base": 2, "rates": {}
+      "id": "citi-double-cash",
+      "issuer": "citi",
+      "name": "Double Cash",
+      "network": "mastercard",
+      "currency": "cash",
+      "annualFee": 0,
+      "base": 2,
+      "rates": {},
+      "officialUrl": "https://www.citi.com/credit-cards/citi-double-cash-credit-card",
+      "officialLabel": "Citi Double Cash 官方说明",
+      "art": {
+        "bg": "linear-gradient(135deg, #0d9488 0%, #0f766e 48%, #1e3a8a 52%, #0f172a 100%)",
+        "text": "#ffffff",
+        "accent": "#5eead4",
+        "finish": "matte",
+        "chip": "gold",
+        "pattern": "double-arc"
+      }
     },
     {
-      "id": "citi-custom-cash", "issuer": "citi", "name": "Custom Cash",
-      "network": "mastercard", "currency": "cash", "annualFee": 0, "base": 1, "rates": {},
+      "id": "citi-custom-cash",
+      "issuer": "citi",
+      "name": "Custom Cash",
+      "network": "mastercard",
+      "currency": "cash",
+      "annualFee": 0,
+      "base": 1,
+      "rates": {},
       "choices": [
-        { "label": "本账单周期消费最多的类别（自动 5%）", "rate": 5, "cap": 500, "period": "month", "pick": 1,
-          "options": ["dining", "grocery", "gas", "travel", "transit", "streaming", "drugstore", "homeimprovement", "fitness", "entertainment"] }
-      ]
-    },
-    {
-      "id": "citi-costco", "issuer": "citi", "name": "Costco Anywhere Visa",
-      "network": "visa", "currency": "cash", "annualFee": 0,
-      "base": 1, "rates": { "gas": { "r": 4, "cap": 7000, "period": "year" }, "dining": 3, "travel": 3 },
-      "merchants": { "costco": 2, "costco_online": 2, "costco_gas": { "r": 4, "cap": 7000, "period": "year", "capKey": "gas" } },
-      "note": "年费含在 Costco 会员费里"
-    },
-    {
-      "id": "citi-strata-premier", "issuer": "citi", "name": "Strata Premier",
-      "network": "mastercard", "currency": "points", "program": "Citi ThankYou", "annualFee": 95,
-      "base": 1, "rates": { "dining": 3, "grocery": 3, "gas": 3, "travel": 3 }
-    },
-    {
-      "id": "capitalone-savor", "issuer": "capitalone", "name": "Savor",
-      "network": "mastercard", "currency": "cash", "annualFee": 0,
-      "base": 1, "rates": { "dining": 3, "grocery": 3, "streaming": 3, "entertainment": 3 }
-    },
-    {
-      "id": "capitalone-quicksilver", "issuer": "capitalone", "name": "Quicksilver",
-      "network": "mastercard", "currency": "cash", "annualFee": 0, "base": 1.5, "rates": {}
-    },
-    {
-      "id": "capitalone-venture-x", "issuer": "capitalone", "name": "Venture X",
-      "network": "visa", "currency": "points", "program": "Capital One Miles", "annualFee": 395, "base": 2, "rates": {}
-    },
-    {
-      "id": "capitalone-venture", "issuer": "capitalone", "name": "Venture",
-      "network": "visa", "currency": "points", "program": "Capital One Miles", "annualFee": 95, "base": 2, "rates": {}
-    },
-    {
-      "id": "discover-it", "issuer": "discover", "name": "Discover it Cash Back",
-      "network": "discover", "currency": "cash", "annualFee": 0, "base": 1, "rates": {},
-      "rotating": { "rate": 5, "cap": 1500, "needsActivation": true }
-    },
-    {
-      "id": "boa-customized-cash", "issuer": "boa", "name": "Customized Cash Rewards",
-      "network": "visa", "currency": "cash", "annualFee": 0,
-      "base": 1, "rates": { "grocery": 2, "warehouse": 2 },
-      "choices": [
-        { "label": "自选 3% 类别", "rate": 3, "cap": 2500, "period": "quarter", "pick": 1,
-          "options": ["gas", "online", "dining", "travel", "drugstore", "homeimprovement"] }
+        {
+          "label": "本账单周期消费最多的类别（自动 5%）",
+          "rate": 5,
+          "cap": 500,
+          "period": "month",
+          "pick": 1,
+          "options": ["dining", "grocery", "gas", "travel", "transit", "streaming", "drugstore", "homeimprovement", "fitness", "entertainment"]
+        }
       ],
-      "note": "3% 和 2% 合计每季度上限 $2,500"
+      "resetPeriod": "month",
+      "officialUrl": "https://www.citi.com/credit-cards/citi-custom-cash-credit-card",
+      "officialLabel": "Citi 5% 类别官方说明",
+      "art": {
+        "bg": "linear-gradient(135deg, #1e1b4b 0%, #1d4ed8 45%, #be185d 100%)",
+        "text": "#ffffff",
+        "accent": "#f472b6",
+        "finish": "gloss",
+        "chip": "silver",
+        "pattern": "citi-arch"
+      }
     },
     {
-      "id": "wf-active-cash", "issuer": "wellsfargo", "name": "Active Cash",
-      "network": "visa", "currency": "cash", "annualFee": 0, "base": 2, "rates": {}
+      "id": "citi-costco",
+      "issuer": "citi",
+      "name": "Costco Anywhere Visa",
+      "network": "visa",
+      "currency": "cash",
+      "annualFee": 0,
+      "base": 1,
+      "rates": { "gas": { "r": 4, "cap": 7000, "period": "year" }, "dining": 3, "travel": 3 },
+      "merchants": {
+        "costco": 2,
+        "costco_online": 2,
+        "costco_gas": { "r": 4, "cap": 7000, "period": "year", "capKey": "gas" }
+      },
+      "resetPeriod": "year",
+      "note": "年费含在 Costco 会员费里",
+      "officialUrl": "https://www.citi.com/credit-cards/citi-costco-anywhere-visa-credit-card",
+      "officialLabel": "Citi Costco 返现官方说明",
+      "art": {
+        "bg": "linear-gradient(135deg, #334155 0%, #475569 50%, #1e293b 100%)",
+        "text": "#f8fafc",
+        "accent": "#ef4444",
+        "finish": "matte",
+        "chip": "silver",
+        "pattern": "costco"
+      }
     },
     {
-      "id": "wf-autograph", "issuer": "wellsfargo", "name": "Autograph",
-      "network": "visa", "currency": "points", "program": "Wells Fargo Rewards", "annualFee": 0,
-      "base": 1, "rates": { "dining": 3, "travel": 3, "gas": 3, "transit": 3, "streaming": 3 }
+      "id": "citi-strata-premier",
+      "issuer": "citi",
+      "name": "Strata Premier",
+      "network": "mastercard",
+      "currency": "points",
+      "program": "Citi ThankYou",
+      "annualFee": 95,
+      "base": 1,
+      "rates": { "dining": 3, "grocery": 3, "gas": 3, "travel": 3 },
+      "officialUrl": "https://www.citi.com/credit-cards/citi-strata-premier-credit-card",
+      "officialLabel": "Citi Strata Premier 官方说明",
+      "art": {
+        "bg": "linear-gradient(135deg, #042f2e 0%, #115e59 50%, #0f172a 100%)",
+        "text": "#f0fdfa",
+        "accent": "#2dd4bf",
+        "finish": "metal",
+        "chip": "gold",
+        "pattern": "strata"
+      }
     },
     {
-      "id": "usbank-cash-plus", "issuer": "usbank", "name": "Cash+",
-      "network": "visa", "currency": "cash", "annualFee": 0, "base": 1, "rates": {},
+      "id": "capitalone-savor",
+      "issuer": "capitalone",
+      "name": "Savor",
+      "network": "mastercard",
+      "currency": "cash",
+      "annualFee": 0,
+      "base": 1,
+      "rates": { "dining": 3, "grocery": 3, "streaming": 3, "entertainment": 3 },
+      "officialUrl": "https://www.capitalone.com/credit-cards/savor/",
+      "officialLabel": "Capital One Savor 官方说明",
+      "art": {
+        "bg": "linear-gradient(135deg, #7c2d12 0%, #c2410c 48%, #431407 100%)",
+        "text": "#fff7ed",
+        "accent": "#fdba74",
+        "finish": "metal",
+        "chip": "gold",
+        "pattern": "swoosh"
+      }
+    },
+    {
+      "id": "capitalone-quicksilver",
+      "issuer": "capitalone",
+      "name": "Quicksilver",
+      "network": "mastercard",
+      "currency": "cash",
+      "annualFee": 0,
+      "base": 1.5,
+      "rates": {},
+      "officialUrl": "https://www.capitalone.com/credit-cards/quicksilver/",
+      "officialLabel": "Capital One Quicksilver 官方说明",
+      "art": {
+        "bg": "linear-gradient(135deg, #475569 0%, #94a3b8 48%, #334155 100%)",
+        "text": "#ffffff",
+        "accent": "#f1f5f9",
+        "finish": "metal",
+        "chip": "silver",
+        "pattern": "swoosh"
+      }
+    },
+    {
+      "id": "capitalone-venture-x",
+      "issuer": "capitalone",
+      "name": "Venture X",
+      "network": "visa",
+      "currency": "points",
+      "program": "Capital One Miles",
+      "annualFee": 395,
+      "base": 2,
+      "rates": {},
+      "officialUrl": "https://www.capitalone.com/credit-cards/venture-x/",
+      "officialLabel": "Capital One Venture X 官方说明",
+      "art": {
+        "bg": "linear-gradient(135deg, #090d16 0%, #1e293b 50%, #0f172a 100%)",
+        "text": "#f8fafc",
+        "accent": "#38bdf8",
+        "finish": "metal",
+        "chip": "silver",
+        "pattern": "venture"
+      }
+    },
+    {
+      "id": "capitalone-venture",
+      "issuer": "capitalone",
+      "name": "Venture",
+      "network": "visa",
+      "currency": "points",
+      "program": "Capital One Miles",
+      "annualFee": 95,
+      "base": 2,
+      "rates": {},
+      "officialUrl": "https://www.capitalone.com/credit-cards/venture/",
+      "officialLabel": "Capital One Venture 官方说明",
+      "art": {
+        "bg": "linear-gradient(135deg, #0f172a 0%, #1e40af 55%, #172554 100%)",
+        "text": "#f8fafc",
+        "accent": "#60a5fa",
+        "finish": "metal",
+        "chip": "silver",
+        "pattern": "venture"
+      }
+    },
+    {
+      "id": "discover-it",
+      "issuer": "discover",
+      "name": "Discover it Cash Back",
+      "network": "discover",
+      "currency": "cash",
+      "annualFee": 0,
+      "base": 1,
+      "rates": {},
+      "rotating": { "rate": 5, "cap": 1500, "needsActivation": true },
+      "resetPeriod": "quarter",
+      "officialUrl": "https://www.discover.com/credit-cards/cash-back/cashback-calendar.html",
+      "officialLabel": "Discover 5% 官方日历与激活",
+      "art": {
+        "bg": "linear-gradient(135deg, #ea580c 0%, #f97316 45%, #9a3412 100%)",
+        "text": "#ffffff",
+        "accent": "#ffedd5",
+        "finish": "gloss",
+        "chip": "gold",
+        "pattern": "discover-dawn"
+      }
+    },
+    {
+      "id": "boa-customized-cash",
+      "issuer": "boa",
+      "name": "Customized Cash Rewards",
+      "network": "visa",
+      "currency": "cash",
+      "annualFee": 0,
+      "base": 1,
+      "rates": { "grocery": 2, "warehouse": 2 },
       "choices": [
-        { "label": "自选两个 5% 类别", "rate": 5, "cap": 2000, "period": "quarter", "pick": 2,
-          "options": ["fastfood", "streaming", "department", "electronics", "fitness", "transit", "entertainment"] },
-        { "label": "自选一个 2% 日常类别", "rate": 2, "pick": 1, "options": ["grocery", "gas", "dining"] }
-      ]
+        {
+          "label": "自选 3% 类别",
+          "rate": 3,
+          "cap": 2500,
+          "period": "quarter",
+          "pick": 1,
+          "options": ["gas", "online", "dining", "travel", "drugstore", "homeimprovement"]
+        }
+      ],
+      "resetPeriod": "quarter",
+      "note": "3% 和 2% 合计每季度上限 $2,500",
+      "officialUrl": "https://www.bankofamerica.com/credit-cards/products/cash-back-credit-card/",
+      "officialLabel": "BofA 3% 自选类别官方说明",
+      "art": {
+        "bg": "linear-gradient(135deg, #b91c1c 0%, #dc2626 52%, #7f1d1d 100%)",
+        "text": "#ffffff",
+        "accent": "#fca5a5",
+        "finish": "gloss",
+        "chip": "gold",
+        "pattern": "boa-flag"
+      }
     },
     {
-      "id": "apple-card", "issuer": "apple", "name": "Apple Card",
-      "network": "mastercard", "currency": "cash", "annualFee": 0, "base": 2, "rates": {},
-      "note": "按 Apple Pay 支付 2% 计算，实体卡只有 1%"
+      "id": "wf-active-cash",
+      "issuer": "wellsfargo",
+      "name": "Active Cash",
+      "network": "visa",
+      "currency": "cash",
+      "annualFee": 0,
+      "base": 2,
+      "rates": {},
+      "officialUrl": "https://creditcards.wellsfargo.com/active-cash-credit-card/",
+      "officialLabel": "Wells Fargo Active Cash 官方说明",
+      "art": {
+        "bg": "linear-gradient(135deg, #991b1b 0%, #b91c1c 50%, #450a0a 100%)",
+        "text": "#ffffff",
+        "accent": "#fbbf24",
+        "finish": "gloss",
+        "chip": "gold",
+        "pattern": "waves"
+      }
+    },
+    {
+      "id": "wf-autograph",
+      "issuer": "wellsfargo",
+      "name": "Autograph",
+      "network": "visa",
+      "currency": "points",
+      "program": "Wells Fargo Rewards",
+      "annualFee": 0,
+      "base": 1,
+      "rates": { "dining": 3, "travel": 3, "gas": 3, "transit": 3, "streaming": 3 },
+      "officialUrl": "https://creditcards.wellsfargo.com/autograph-visa-credit-card/",
+      "officialLabel": "Wells Fargo Autograph 官方说明",
+      "art": {
+        "bg": "linear-gradient(135deg, #7f1d1d 0%, #881337 52%, #3b0764 100%)",
+        "text": "#ffffff",
+        "accent": "#fda4af",
+        "finish": "metal",
+        "chip": "gold",
+        "pattern": "facets"
+      }
+    },
+    {
+      "id": "usbank-cash-plus",
+      "issuer": "usbank",
+      "name": "Cash+",
+      "network": "visa",
+      "currency": "cash",
+      "annualFee": 0,
+      "base": 1,
+      "rates": {},
+      "choices": [
+        {
+          "label": "自选两个 5% 类别",
+          "rate": 5,
+          "cap": 2000,
+          "period": "quarter",
+          "pick": 2,
+          "options": ["fastfood", "streaming", "department", "electronics", "fitness", "transit", "entertainment"]
+        },
+        {
+          "label": "自选一个 2% 日常类别",
+          "rate": 2,
+          "pick": 1,
+          "options": ["grocery", "gas", "dining"]
+        }
+      ],
+      "resetPeriod": "quarter",
+      "officialUrl": "https://cashplus.usbank.com/",
+      "officialLabel": "U.S. Bank Cash+ 5% 官方类别与激活",
+      "art": {
+        "bg": "linear-gradient(135deg, #172554 0%, #1e3a8a 55%, #0c4a6e 100%)",
+        "text": "#ffffff",
+        "accent": "#f87171",
+        "finish": "gloss",
+        "chip": "gold",
+        "pattern": "plus"
+      }
+    },
+    {
+      "id": "apple-card",
+      "issuer": "apple",
+      "name": "Apple Card",
+      "network": "mastercard",
+      "currency": "cash",
+      "annualFee": 0,
+      "base": 2,
+      "rates": {},
+      "note": "按 Apple Pay 支付 2% 计算，实体卡只有 1%",
+      "officialUrl": "https://www.apple.com/apple-card/",
+      "officialLabel": "Apple Card Daily Cash 官方说明",
+      "art": {
+        "bg": "linear-gradient(135deg, #ffffff 0%, #f1f5f9 55%, #e2e8f0 100%)",
+        "text": "#0f172a",
+        "accent": "#0f172a",
+        "lightText": true,
+        "finish": "titanium",
+        "chip": "silver",
+        "pattern": "apple"
+      }
     }
   ]
 }

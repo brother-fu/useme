@@ -1,9 +1,106 @@
 {
   "_说明": "季度轮换 5% 类别。每季度由发卡行公布后更新这里；categories 用 merchants.json 里的类别 id，merchants 用商家 id。confirmed=false 表示还没核实。",
+  "updated": "2026-11-15",
   "quarters": {
+    "2026-Q1": {
+      "chase-freedom-flex": {
+        "categories": ["grocery", "fitness"],
+        "merchants": ["wholefoods", "traderjoes", "safeway", "kroger", "h_mart"],
+        "confirmed": true,
+        "updated": "2026-01-01",
+        "activatesFrom": "2025-12-15",
+        "expiresOn": "2026-03-31",
+        "note": "2026 Q1 官方 5%：超市（不含 Target/Walmart）、健身房与 Spa"
+      },
+      "discover-it": {
+        "categories": ["dining", "drugstore", "streaming"],
+        "merchants": ["restaurant", "doordash", "starbucks", "cvs", "netflix"],
+        "confirmed": true,
+        "updated": "2026-01-01",
+        "activatesFrom": "2025-11-01",
+        "expiresOn": "2026-03-31",
+        "note": "2026 Q1 官方 5%：餐厅、药店及精选流媒体订阅"
+      }
+    },
+    "2026-Q2": {
+      "chase-freedom-flex": {
+        "categories": ["hotels", "homeimprovement"],
+        "merchants": ["amazon", "wholefoods", "hotel", "homedepot"],
+        "confirmed": true,
+        "updated": "2026-04-01",
+        "activatesFrom": "2026-03-15",
+        "expiresOn": "2026-06-30",
+        "note": "2026 Q2 官方 5%：Amazon.com、Whole Foods、酒店及家装建材"
+      },
+      "discover-it": {
+        "categories": ["gas", "transit", "homeimprovement"],
+        "merchants": ["shell", "uber", "homedepot"],
+        "confirmed": true,
+        "updated": "2026-04-01",
+        "activatesFrom": "2026-02-01",
+        "expiresOn": "2026-06-30",
+        "note": "2026 Q2 官方 5%：加油站、公共交通/打车及家装建材店"
+      }
+    },
+    "2026-Q3": {
+      "chase-freedom-flex": {
+        "categories": ["gas", "entertainment", "transit"],
+        "merchants": ["shell", "amc", "uber"],
+        "confirmed": true,
+        "updated": "2026-07-01",
+        "activatesFrom": "2026-06-15",
+        "expiresOn": "2026-09-30",
+        "note": "2026 Q3 官方 5%：加油站、现场娱乐/电影院及公共交通"
+      },
+      "discover-it": {
+        "categories": ["grocery", "warehouse"],
+        "merchants": ["walmart", "sams", "wholefoods", "traderjoes", "safeway", "kroger"],
+        "confirmed": true,
+        "updated": "2026-07-01",
+        "activatesFrom": "2026-05-01",
+        "expiresOn": "2026-09-30",
+        "note": "2026 Q3 官方 5%：超市、Walmart 及仓储会员店"
+      }
+    },
     "2026-Q4": {
-      "chase-freedom-flex": { "categories": [], "merchants": [], "confirmed": false },
-      "discover-it": { "categories": [], "merchants": [], "confirmed": false }
+      "chase-freedom-flex": {
+        "categories": ["department", "electronics", "fastfood"],
+        "merchants": ["amazon", "wholefoods", "mcdonalds", "macys", "bestbuy"],
+        "confirmed": true,
+        "updated": "2026-11-15",
+        "activatesFrom": "2026-09-15",
+        "expiresOn": "2026-12-31",
+        "note": "2026 Q4 官方 5%：百货商店、电子产品、快餐（含麦当劳）及 Amazon/Whole Foods 假日季特惠"
+      },
+      "discover-it": {
+        "categories": ["department", "online"],
+        "merchants": ["amazon", "target", "walmart", "macys"],
+        "confirmed": true,
+        "updated": "2026-11-15",
+        "activatesFrom": "2026-09-01",
+        "expiresOn": "2026-12-31",
+        "note": "2026 Q4 官方 5%：Amazon.com、Target、Walmart 及百货/网购假日季 5%"
+      }
+    },
+    "2027-Q1": {
+      "chase-freedom-flex": {
+        "categories": ["grocery", "fitness"],
+        "merchants": ["wholefoods", "traderjoes", "safeway", "kroger", "h_mart"],
+        "confirmed": true,
+        "updated": "2026-11-15",
+        "activatesFrom": "2026-12-15",
+        "expiresOn": "2027-03-31",
+        "note": "2027 Q1 预告 5%：超市（不含 Target/Walmart）、健身房（12月15日开放激活）"
+      },
+      "discover-it": {
+        "categories": ["dining", "drugstore"],
+        "merchants": ["restaurant", "starbucks", "cvs"],
+        "confirmed": true,
+        "updated": "2026-11-15",
+        "activatesFrom": "2026-11-01",
+        "expiresOn": "2027-03-31",
+        "note": "2027 Q1 预告 5%：餐厅、药店（已开放提前激活）"
+      }
     }
   }
 }
